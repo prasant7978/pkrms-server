@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retaining Walls</title>
+</head>
+<body>
+
+    <!-- Form to add new Retaining Wall data -->
+    <h2>Add Retaining Wall</h2>
+    <form method="POST" action="{% url 'save_retaining_wall' %}">
+        {% csrf_token %}
+        <label for="link">Link:</label>
+            <select name="link" id="link" required>
+                <option value="">Select Link</option>
+                {% for link in links %}
+                <option value="{{ link.id }}">{{ link }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="kabupaten">Kabupaten:</label>
+            <select name="kabupaten" id="kabupaten" required>
+                <option value="">Select Kabupaten</option>
+                {% for kabupaten in kabupatens %}
+                <option value="{{ kabupaten.id }}">{{ kabupaten }}</option>
+                {% endfor %}
+            </select>
+            <label for="province">Province:</label>
+            <select name="province" id="province" required>
+                <option value="">Select Province</option>
+                {% for province in provinces %}
+                <option value="{{ province.id }}">{{ province }}</option>
+                {% endfor %}
+            </select>
+        
+
+            <label for="link_status">Link Status:</label>
+            <select name="link_status" id="link_status" required>
+                <option value="provincial">Provincial</option>
+                <option value="kabupaten">Kabupaten</option>
+            </select>
+
+            
+
+        <label for="wall_side">Wall Side:</label>
+        <select name="wall_side">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+        </select><br><br>
+
+        <label for="wall_material">Wall Material:</label>
+        <select name="wall_material">
+            <option value="pasangan Batu">Pasangan Batu</option>
+            <option value="beton">Beton</option>
+            <option value="beronjong">Beronjong</option>
+            <option value="pelat beton">Pelat Beton</option>
+            <option value="lainnya">Lainnya</option>
+        </select><br><br>
+
+        <label for="wall_height">Wall Height:</label>
+        <input type="number" name="wall_height"><br><br>
+
+        <label for="chainage_from">Chainage From:</label>
+        <input type="number" name="chainage_from"><br><br>
+
+        <label for="wall_number">Wall Number:</label>
+        <input type="number" name="wall_number"><br><br>
+
+        <label for="wall_type">Wall Type:</label>
+        <select name="wall_type">
+            <option value="tembok bukit">Tembok Bukit</option>
+            <option value="tembok laut">Tembok Laut</option>
+            <option value="tembok sungai">Tembok Sungai</option>
+            <option value="lainnya">Lainnya</option>
+            <option value="struktur diperlu">Struktur Diperlu</option>
+        </select><br><br>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <hr>
+
+    <!-- Table to display existing Retaining Walls -->
+    <h2>Existing Retaining Walls</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Link</th>
+                <th>Kabupaten</th>
+                <th>Province</th>
+                <th>Link Status</th>
+                <th>Wall Side</th>
+                <th>Wall Material</th>
+                <th>Wall Height</th>
+                <th>Chainage From</th>
+                <th>Wall Number</th>
+                <th>Wall Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wall in retaining_walls %}
+                <tr>
+                    <td>{{ wall.link }}</td>
+                    <td>{{ wall.kabupaten }}</td>
+                    <td>{{ wall.province }}</td>
+                    <td>{{ wall.link_status }}</td>
+                    <td>{{ wall.wall_side }}</td>
+                    <td>{{ wall.wall_material }}</td>
+                    <td>{{ wall.wall_height }}</td>
+                    <td>{{ wall.chainage_from }}</td>
+                    <td>{{ wall.wall_number }}</td>
+                    <td>{{ wall.wall_type }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

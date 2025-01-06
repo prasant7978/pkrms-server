@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve Request</title>
+    <style>
+        /* Basic styles for buttons and layout */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Approve/Reject User Request</h1>
+        
+        <p>User: {{ approval_request.user.email }}</p>
+        <p>Status: {{ approval_request.status }}</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <button type="submit" name="action" value="approve">Approve</button>
+            <button type="submit" name="action" value="reject">Reject</button>
+        </form>
+    </div>
+
+</body>
+</html>

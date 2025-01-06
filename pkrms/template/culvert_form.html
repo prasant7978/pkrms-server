@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Culvert Condition Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin-top: 5px;
+            padding: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Culvert Condition Form</h1>
+        <form method="post" >
+            {% csrf_token %}
+            <label for="link">Link:</label>
+            <select name="link" id="link" required>
+                <option value="">Select Link</option>
+                {% for link in links %}
+                <option value="{{ link.id }}">{{ link }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="kabupaten">Kabupaten:</label>
+            <select name="kabupaten" id="kabupaten" required>
+                <option value="">Select Kabupaten</option>
+                {% for kabupaten in kabupatens %}
+                <option value="{{ kabupaten.id }}">{{ kabupaten }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="province">Province:</label>
+            <select name="province" id="province" required>
+                <option value="">Select Province</option>
+                {% for province in provinces %}
+                <option value="{{ province.id }}">{{ province }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="link_status">Link Status:</label>
+            <select name="link_status" id="link_status" required>
+                <option value="provincial">Provincial</option>
+                <option value="kabupaten">Kabupaten</option>
+            </select>
+
+            <label for="condition_year">Condition Year:</label>
+            <select name="condition_year" id="condition_year" required>
+                <option value="">Select Year</option>
+                {% for year in condition_years %}
+                <option value="{{ year.id }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="culvert_number">Culvert Number:</label>
+            <select name="culvert_number" id="culvert_number" required>
+                <option value="">Select Culvert Number</option>
+                {% for culvert in culverts %}
+                <option value="{{ culvert.id }}">{{ culvert }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="condition_barrel">Condition Barrel:</label>
+            <select name="condition_barrel" id="condition_barrel" required>
+                {% for choice in condition_choices %}
+                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="condition_inlet">Condition Inlet:</label>
+            <select name="condition_inlet" id="condition_inlet" required>
+                {% for choice in condition_choices %}
+                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="condition_outlet">Condition Outlet:</label>
+            <select name="condition_outlet" id="condition_outlet" required>
+                {% for choice in condition_choices %}
+                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="sitting">Sitting:</label>
+            <select name="sitting" id="sitting" required>
+                {% for choice in sitting_choices %}
+                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="overtopping">Overtopping:</label>
+            <select name="overtopping" id="overtopping" required>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+
+            <label for="surveyed_by">Surveyed By:</label>
+            <input type="text" name="surveyed_by" id="surveyed_by" required>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Culvert Inventory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        form {
+            width: 50%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        form input, form select, form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            width: 80%;
+            margin: 20px auto;
+            padding: 0;
+            list-style-type: none;
+        }
+        ul li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        ul li:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Culvert Inventory Form</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="link">Link:</label>
+        <select name="link" id="link" required>
+            <option value="">Select Link</option>
+            {% for link in links %}
+            <option value="{{ link.id }}">{{ link }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="kabupaten">Kabupaten:</label>
+        <select name="kabupaten" id="kabupaten" required>
+            <option value="">Select Kabupaten</option>
+            {% for kabupaten in kabupatens %}
+            <option value="{{ kabupaten.id }}">{{ kabupaten }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="province">Province:</label>
+        <select name="province" id="province" required>
+            <option value="">Select Province</option>
+            {% for province in provinces %}
+            <option value="{{ province.id }}">{{ province }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="link_status">Link Status:</label>
+        <select name="link_status" id="link_status" required>
+            <option value="provincial">Provincial</option>
+            <option value="kabupataen">Kabupataen</option>
+        </select>
+
+        <label for="chainage">Chainage (km):</label>
+        <input type="number" step="0.01" name="chainage" id="chainage" required>
+
+        <label for="culvert_number">Culvert Number:</label>
+        <input type="text" name="culvert_number" id="culvert_number" required>
+
+        <label for="culvert_length">Culvert Length (m):</label>
+        <input type="number" step="0.01" name="culvert_length" id="culvert_length" required>
+
+        <label for="number_of_openings">Number of Openings:</label>
+        <input type="number" name="number_of_openings" id="number_of_openings" required>
+
+        <label for="culvert_type">Culvert Type:</label>
+        <select name="culvert_type" id="culvert_type" required>
+            <option value="gorong_gorong_kotak">Gorong-gorong Kotak</option>
+            <option value="gorong_gorong_pipa_beton">Gorong-gorong Pipa Beton</option>
+            <option value="gorong_gorong_pelat_beton">Gorong-gorong Pelat Beton</option>
+            <option value="gorong_gorong_pipa_baja">Gorong-gorong Pipa Baja</option>
+            <option value="lainnya">Lainnya</option>
+            <option value="struktur_diprelu">Struktur Diprelu</option>
+        </select>
+
+        <label for="culvert_width">Culvert Width (m):</label>
+        <input type="number" step="0.01" name="culvert_width" id="culvert_width" required>
+
+        <label for="culvert_height">Culvert Height (m):</label>
+        <input type="number" step="0.01" name="culvert_height" id="culvert_height" required>
+
+        <label for="inlet_type">Inlet Type:</label>
+        <select name="inlet_type" id="inlet_type" required>
+            <option value="non_stuktr">Non Stuktr</option>
+            <option value="apron_dan_tembok_sayap">Apron dan Tembok Sayap</option>
+            <option value="tembok_sayap">Tembok Sayap</option>
+            <option value="beronjong">Beronjong</option>
+            <option value="batu_kali">Batu Kali</option>
+            <option value="langsung_ke_drainase_lainnya">Langsung ke Drainase Lainnya</option>
+        </select>
+
+        <label for="outlet_type">Outlet Type:</label>
+        <select name="outlet_type" id="outlet_type" required>
+            <option value="non_stuktr">Non Stuktr</option>
+            <option value="apron_dan_tembok_sayap">Apron dan Tembok Sayap</option>
+            <option value="tembok_sayap">Tembok Sayap</option>
+            <option value="beronjong">Beronjong</option>
+            <option value="batu_kali">Batu Kali</option>
+            <option value="langsung_ke_drainase_lainnya">Langsung ke Drainase Lainnya</option>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Saved Culvert Inventories</h2>
+    <ul>
+        {% for inventory in culvert_inventories %}
+        <li>{{ inventory.culvert_number }} at Chainage {{ inventory.chainage }} km</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

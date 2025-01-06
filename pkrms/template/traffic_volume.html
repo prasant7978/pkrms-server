@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Volume Data Entry</title>
+    <!-- Optional CSS for styling -->
+</head>
+<body>
+    <h1>Traffic Volume Data Entry</h1>
+    <form  method="POST"> <!-- Change the action URL to your desired endpoint -->
+        {% csrf_token %} <!-- Include this if you're using Django to handle CSRF protection -->
+        
+        <label for="link">Link:</label>
+        <select id="link" name="link" required>
+            {% for link in links %}
+            <option value="{{ link.id }}">{{ link }}</option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <label for="kabupaten">Kabupaten:</label>
+        <select id="kabupaten" name="kabupaten" required>
+            {% for kabupaten in kabupatens %}
+                <option value="{{ kabupaten.id }}">{{ kabupaten }}</option>
+                {% endfor %}
+        </select>
+        <br>
+
+        <label for="province">Province:</label>
+        <select id="province" name="province" required>
+            {% for province in provinces %}
+                <option value="{{ province.id }}">{{ province }}</option>
+                {% endfor %}
+        </select>
+        <br>
+
+        <label for="link_status">Link Status:</label>
+        <select id="link_status" name="link_status" required>
+            <option value="provincial">Provincial</option>
+            <option value="kabupaten">Kabupaten</option>
+        </select>
+        <br>
+
+        <label for="missing_data">Missing Data:</label>
+        <input type="checkbox" id="missing_data" name="missing_data">
+        <br>
+
+        <label for="surveyed_by">Surveyed By:</label>
+        <input type="text" id="surveyed_by" name="surveyed_by" maxlength="200">
+        <br>
+
+        <label for="survey_year">Survey Year:</label>
+        <input type="number" id="survey_year" name="survey_year" min="1900" max="2100">
+        <br>
+
+        <label for="journey_time">Journey Time:</label>
+        <input type="time" id="journey_time" name="journey_time" required>
+        <br>
+
+        <label for="traffic_count">Traffic Count:</label>
+        <select id="traffic_count" name="traffic_count" required>
+            <option value="stationary">Stationary</option>
+            <option value="moving count">Moving count</option>
+        </select>
+        <br>
+
+        <label for="AADT_MC">AADT MC:</label>
+        <input type="number" id="AADT_MC" name="AADT_MC" min="0">
+        <br>
+
+        <label for="AADT_Car">AADT Car:</label>
+        <input type="number" id="AADT_Car" name="AADT_Car" min="0">
+        <br>
+
+        <label for="AADT_Pickup">AADT Pickup:</label>
+        <input type="number" id="AADT_Pickup" name="AADT_Pickup" min="0">
+        <br>
+
+        <label for="AADT_Small_Bus">AADT Small Bus:</label>
+        <input type="number" id="AADT_Small_Bus" name="AADT_Small_Bus" min="0">
+        <br>
+
+        <label for="AADT_Large_Bus">AADT Large Bus:</label>
+        <input type="number" id="AADT_Large_Bus" name="AADT_Large_Bus" min="0">
+        <br>
+
+        <label for="AADT_Microtruk">AADT Microtruk:</label>
+        <input type="number" id="AADT_Microtruk" name="AADT_Microtruk" min="0">
+        <br>
+
+        <label for="AADT_small_truck">AADT Small Truck:</label>
+        <input type="number" id="AADT_small_truck" name="AADT_small" min="0">
+
+        <button type="submit">Submit</button>

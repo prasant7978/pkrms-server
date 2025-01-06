@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Display Wall Conditions</title>
+</head>
+<body>
+    <h1>Wall Conditions</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Link</th>
+                <th>Kabupaten</th>
+                <th>Province</th>
+                <th>Condition Year</th>
+                <th>Wall Number</th>
+                <th>Link Status</th>
+                <th>Wall Mortar Needed</th>
+                <th>Wall Repair Needed</th>
+                <th>Wall Rebuilt Needed</th>
+                <th>Surveyed By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for condition in conditions %}
+            <tr>
+                <td>{{ condition.link.name }}</td>
+                <td>{{ condition.kabupaten.name }}</td>
+                <td>{{ condition.province.name }}</td>
+                <td>{{ condition.condition_year.year }}</td>
+                <td>{{ condition.wall_number.wall_number }}</td>
+                <td>{{ condition.get_link_status_display }}</td>
+                <td>{{ condition.wall_Mortar_needed }}</td>
+                <td>{{ condition.wall_repair_needed }}</td>
+                <td>{{ condition.wall_rebuiled_needed }}</td>
+                <td>{{ condition.surveyed_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

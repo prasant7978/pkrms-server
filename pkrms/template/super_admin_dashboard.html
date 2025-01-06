@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ user.name }}</h1>
+    
+    <h2>Provinces</h2>
+    <ul>
+        {% for province in provinces %}
+            <li>{{ province.name }} - {{ province.code }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Balai</h2>
+    <ul>
+        {% for balai in balais %}
+            <li>{{ balai.name }} - {{ balai.province.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Kabupaten</h2>
+    <ul>
+        {% for kabupaten in kabupatens %}
+            <li>{{ kabupaten.name }} - {{ kabupaten.code }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
