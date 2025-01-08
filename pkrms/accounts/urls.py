@@ -5,9 +5,10 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from .views import BalaiViewSet, ProvinceViewSet, KabupatenViewSet
+from .views import BalaiViewSet, ProvinceViewSet, KabupatenViewSet, balai_dashboard
 from .views import Traffic_weighting_factors, MCAcriteriaListCreateView, MCAcriteriaRetrieveUpdateDestroyView,ConditionYearListCreateView,ConditionYearRetrieveUpdateDeleteView,RoadConditionListCreateView,RoadConditionRetrieveUpdateDeleteView, RoadInventoryListCreateView, RoadInventoryDetailView ,LinkClassListView, link_selection_view , LinkKabupatenListCreateView,LinkKabupatenDetailView,LinkKacematanListCreateView,LinkKacematanDetailView
 from django.contrib.auth.views import LogoutView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 # Define the Swagger schema view
 
@@ -73,10 +74,12 @@ urlpatterns = [
     path('api/register/', views.register_user, name='register_user'),
     path('api/verify-otp/', views.verify_otp, name='verify_otp'),
     path('api/login/', views.api_login, name='api-login'),
+    path('api/balai_dashboard/', views.balai_dashboard, name='balai_dashboard_api'),
     #path('balai/', views.balai_dashboard, name='balai_dashboard'),
     #path('province/', views.province_dashboard, name='province_dashboard'),
     #path('kabupaten/', views.kabupaten_dashboard, name='kabupaten_dashboard'),
-    
+    path('api/logout/', LogoutView.as_view(), name='logout'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 

@@ -127,7 +127,7 @@ class KabupatenSerializer(serializers.ModelSerializer):
 
 
 
-from rest_framework import serializers
+
 from .models import User, Role, Balai, Province, Kabupaten
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -146,3 +146,28 @@ class OTPVerificationSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    province = serializers.StringRelatedField()  # If you want just the name, use `StringRelatedField()`
+    Kabupaten = serializers.StringRelatedField()
+    balai = serializers.StringRelatedField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'name', 'is_active', 'is_staff', 'date_joined', 'approved', 'role', 'province', 'Kabupaten', 'balai']
+
+from .models import Role, User, ApprovalRequest
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['role_name']
+class ApprovalRequestSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    approver = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ApprovalRequest
+        fields = ['user', 'approver', 'created_at', 'status']

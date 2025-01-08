@@ -1084,11 +1084,14 @@ def super_admin_dashboard(request):
     else:
         return HttpResponse("You are not authorized to view this page.")'''
 
-
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     """
     Registers a user and sends OTP to the user's email.
@@ -1153,6 +1156,7 @@ def register_user(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def verify_otp(request):
     """
     Verifies OTP and completes user registration if OTP is correct.
@@ -1195,7 +1199,8 @@ def verify_otp(request):
 
 
 
-@api_view(['POST'])
+'''@api_view(['POST'])
+@permission_classes([AllowAny])
 def api_login(request):
     """
     API Login endpoint to authenticate a user and return a JWT token.
@@ -1243,4 +1248,181 @@ def api_login(request):
             return Response({'detail': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         # If serializer validation fails
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def api_login(request):
+    """
+    API Login endpoint to authenticate a user and return a JWT token.
+    """
+    serializer = LoginSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            # Check if user is active
+            if not user.is_active:
+                return Response({'detail': 'Your account is not active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Specific check for Provincial LG users
+            if user.role.role_name == Role.PROVINCIAL_LG:
+                if not user.approved:
+                    return Response({
+                        'detail': 'Your account is pending approval from a Balai LG user.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+            # General approval check
+            if not user.approved and not user.is_superuser:
+                return Response({'detail': 'Your account is not approved yet. Please wait for approval.'}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Generate JWT token for authenticated users
+            refresh = RefreshToken.for_user(user)
+            access_token = refresh.access_token
+
+            response_data = {
+                'refresh_token': str(refresh),
+                'access_token': str(access_token),
+                'user_id': user.id,
+                'email': user.email,
+                'role': user.role.role_name if user.role else None,
+                'message': f'User {user.email} logged in successfully.'
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import User, ApprovalRequest, Link, Role
+from .serializers import UserSerializer, ApprovalRequestSerializer
+from django.shortcuts import get_object_or_404
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def balai_dashboard(request):
+    logged_in_user = request.user
+
+    if request.method == 'GET':
+        # Fetching users pending approval for BALAI_LG role
+        users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
+        approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
+        
+        # Fetching links for the logged-in user's province and kabupaten
+        province_links = Link.objects.filter(province=logged_in_user.province)
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+        
+        # Serializing the data
+        user_serializer = UserSerializer(users_pending_approval, many=True)
+        approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
+        
+        # Adding the province and kabupaten links to the response data
+        return Response({
+            'users_pending_approval': user_serializer.data,
+            'approval_requests': approval_request_serializer.data,
+            'province_links': province_links.values(),  # Optionally serialize links
+            'kabupaten_links': kabupaten_links.values()  # Optionally serialize links
+        })
+
+    elif request.method == 'POST':
+        # Handling approval or rejection of users
+        user_id = request.data.get('user_id')
+        action = request.data.get('action')
+
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+
+            if action == 'approve':
+                user.approved = True
+                user.save()
+                return Response({'detail': f'User {user.email} has been approved.'}, status=200)
+            elif action == 'reject':
+                user.approved = False
+                user.is_active = False
+                user.save()
+                return Response({'detail': f'User {user.email} has been rejected.'}, status=200)
+
+        return Response({'detail': 'Invalid data'}, status=400)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def province_dashboard(request):
+    logged_in_user = request.user
+    
+    if request.user.role.role_name != Role.PROVINCIAL_LG:
+        return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'GET':
+        # Fetching the province and kabupaten links
+        province_links = Link.objects.filter(province=logged_in_user.province)
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+        
+        # Fetching pending approval requests for Kabupaten users
+        kabupaten_users_pending_approval = ApprovalRequest.objects.filter(
+            user__role__role_name=Role.KABUPATEN_LG, 
+            status='Pending',
+            approver=request.user
+        )
+        
+        # Serializing the approval requests
+        approval_request_serializer = ApprovalRequestSerializer(kabupaten_users_pending_approval, many=True)
+        
+        return Response({
+            'kabupaten_users_pending_approval': approval_request_serializer.data,
+            'province_links': province_links.values(),
+            'kabupaten_links': kabupaten_links.values()
+        })
+
+    elif request.method == 'POST':
+        # Handling approval or rejection of users
+        request_id = request.data.get('request_id')
+        action = request.data.get('action')
+
+        if request_id and action:
+            approval_request = get_object_or_404(ApprovalRequest, id=request_id, approver=request.user)
+
+            if action == 'approve':
+                approval_request.status = 'Approved'
+                approval_request.user.approved = True
+                approval_request.user.save()
+                approval_request.save()
+                return Response({'detail': f'User {approval_request.user.email} has been approved.'}, status=status.HTTP_200_OK)
+
+            elif action == 'reject':
+                approval_request.status = 'Rejected'
+                approval_request.user.is_active = False
+                approval_request.user.save()
+                approval_request.save()
+                return Response({'detail': f'User {approval_request.user.email} has been rejected.'}, status=status.HTTP_200_OK)
+
+        return Response({'detail': 'Invalid data or missing request_id/action'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def kabupaten_dashboard(request):
+    logged_in_user = request.user
+
+    # Ensure the user has the appropriate role (Kabupaten LG role)
+    if logged_in_user.role.role_name != Role.KABUPATEN_LG:
+        return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
+
+    # Fetching the links associated with the logged-in user's kabupaten
+    kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+
+    # Return the kabupaten links in the response
+    return Response({
+        'kabupaten_links': kabupaten_links.values('id', 'link_name', 'official_length_km', 'actual_length_km', 'highest_access', 'link_function')
+    })
