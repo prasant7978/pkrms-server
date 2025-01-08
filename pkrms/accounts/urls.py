@@ -74,9 +74,10 @@ urlpatterns = [
     path('api/register/', views.register_user, name='register_user'),
     path('api/verify-otp/', views.verify_otp, name='verify_otp'),
     path('api/login/', views.api_login, name='api-login'),
+    path('api/pfid_dashboard/',views.pfid_dashboard, name= "pfid_dashboard_api"),
     path('api/balai_dashboard/', views.balai_dashboard, name='balai_dashboard_api'),
-    #path('balai/', views.balai_dashboard, name='balai_dashboard'),
-    #path('province/', views.province_dashboard, name='province_dashboard'),
+   
+    path('api/province/', views.province_dashboard, name='province_dashboard'),
     #path('kabupaten/', views.kabupaten_dashboard, name='kabupaten_dashboard'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

@@ -1268,12 +1268,26 @@ def api_login(request):
             if not user.is_active:
                 return Response({'detail': 'Your account is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Specific check for Provincial LG users
+            
+            # Specific checks for user roles
             if user.role.role_name == Role.PROVINCIAL_LG:
                 if not user.approved:
                     return Response({
                         'detail': 'Your account is pending approval from a Balai LG user.'
                     }, status=status.HTTP_400_BAD_REQUEST)
+            elif user.role.role_name == Role.BALAI_LG:
+                if not user.approved:
+                    return Response({
+                        'detail': 'Your account is pending approval from a higher-level admin.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            elif user.role.role_name == Role.KABUPATEN_LG:
+                if not user.approved:
+                    return Response({
+                        'detail': 'Your account is pending approval from a Provincial LG user.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+
+                
 
             # General approval check
             if not user.approved and not user.is_superuser:
@@ -1298,15 +1312,72 @@ def api_login(request):
             return Response({'detail': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import User, ApprovalRequest, Link, Role
 from .serializers import UserSerializer, ApprovalRequestSerializer
 from django.shortcuts import get_object_or_404
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def pfid_dashboard(request):
+    logged_in_user = request.user
+
+    if request.method == 'GET':
+        # Fetching users pending approval for BALAI_LG role
+        balai_users_pending_approval = User.objects.filter(
+            role__role_name=Role.BALAI_LG,
+            approved=False
+        )
+
+        # Fetching approved Balai LG users
+        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI_LG, approved=True)
+        print(f"Approved Balai LG users count: {approved_balai_users.count()}")  # Debug
+
+        # Fetching all approval requests for the logged-in PFID user
+        approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
+        print(f"Pending approval requests count: {approval_requests.count()}")  # Debug
+
+        # Fetching province and kabupaten links
+        province_links = Link.objects.filter(province=logged_in_user.province)
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+
+        # Serializing the data
+        user_serializer = UserSerializer(balai_users_pending_approval, many=True)
+        approved_user_serializer = UserSerializer(approved_balai_users, many=True)
+        approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
+
+        # Adding the province and kabupaten links to the response data
+        return Response({
+            'balai_users_pending_approval': user_serializer.data,
+            'approved_balai_users': approved_user_serializer.data,
+            'approval_requests': approval_request_serializer.data,
+            'province_links': list(province_links.values()),
+            'kabupaten_links': list(kabupaten_links.values())
+        })
+
+    elif request.method == 'POST':
+        # Handling approval or rejection of Balai LG users
+        user_id = request.data.get('user_id')
+        action = request.data.get('action')
+
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+
+            if action == 'approve':
+                user.approved = True
+                user.save()
+                return Response({'detail': f'Balai LG User {user.email} has been approved.'}, status=200)
+            elif action == 'reject':
+                user.approved = False
+                user.is_active = False
+                user.save()
+                return Response({'detail': f'Balai LG User {user.email} has been rejected.'}, status=200)
+
+        return Response({'detail': 'Invalid data'}, status=400)
+
+
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1315,23 +1386,35 @@ def balai_dashboard(request):
 
     if request.method == 'GET':
         # Fetching users pending approval for BALAI_LG role
-        users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
+        province_users_pending_approval = User.objects.filter(
+        role__role_name=Role.PROVINCIAL_LG, 
+        approved=False
+    )
+
+        # Fetching approved users
+        approved_users = User.objects.filter(role__role_name=Role.PROVINCIAL_LG, approved=True)
+        print(f"Approved users count: {approved_users.count()}")  # Debug
+
+        # Fetching approval requests for the logged-in user
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
-        
+        print(f"Pending approval requests count: {approval_requests.count()}")  # Debug
+
         # Fetching links for the logged-in user's province and kabupaten
         province_links = Link.objects.filter(province=logged_in_user.province)
         kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
-        
+
         # Serializing the data
-        user_serializer = UserSerializer(users_pending_approval, many=True)
+        user_serializer = UserSerializer(province_users_pending_approval, many=True)
+        approved_user_serializer = UserSerializer(approved_users, many=True)
         approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
-        
+
         # Adding the province and kabupaten links to the response data
         return Response({
             'users_pending_approval': user_serializer.data,
+            'approved_users': approved_user_serializer.data,
             'approval_requests': approval_request_serializer.data,
-            'province_links': province_links.values(),  # Optionally serialize links
-            'kabupaten_links': kabupaten_links.values()  # Optionally serialize links
+            'province_links': list(province_links.values()),
+            'kabupaten_links': list(kabupaten_links.values())
         })
 
     elif request.method == 'POST':
@@ -1353,6 +1436,7 @@ def balai_dashboard(request):
                 return Response({'detail': f'User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid data'}, status=400)
+
 
 
 @api_view(['GET', 'POST'])
