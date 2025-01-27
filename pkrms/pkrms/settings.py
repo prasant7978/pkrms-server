@@ -62,7 +62,7 @@ ROOT_URLCONF = "pkrms.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -81,10 +81,20 @@ WSGI_APPLICATION = "pkrms.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+'''DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    }
+}'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL database engine
+        'NAME': 'pkrms',                         # Database name
+        'USER': 'postgres',                        # Replace with your database username
+        'PASSWORD': 'postgres@123',              # Replace with your database password
+        'HOST': 'localhost',  # Host address
+        'PORT': '5432',                            # Database port
     }
 }
 

@@ -874,3 +874,144 @@ class ApprovalRequest(models.Model):
         choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')],
         default='Pending'
     )
+
+
+#models for Roads 
+
+class RoadInventory(models.Model):
+    # Foreign Key Fields
+    link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link", default=True)
+    kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province", default=True)
+
+    # Link Status Choices
+    LINK_STATUS_CHOICES = [
+        ('provincial', 'Provincial'),
+        ('kabupaten', 'Kabupaten'),
+    ]
+    link_status = models.CharField(
+        max_length=20,
+        choices=LINK_STATUS_CHOICES,
+        verbose_name="Link Status",
+        default='provincial',
+    )
+
+    # Chainage Fields
+    chainage_from = models.FloatField(verbose_name="Chainage From (km)")
+    chainage_to = models.FloatField(verbose_name="Chainage To (km)")
+    row_width = models.FloatField(verbose_name="ROW Width (m)")
+    pavement_width = models.FloatField(verbose_name="Pavement Width (m)")
+
+    # Pavement Type Choices
+    PAVEMENT_TYPE_CHOICES = [
+        ('beton', 'Beton'),
+        ('blok_beton', 'Blok Beton'),
+        ('aspal', 'Aspal'),
+        ('lapen', 'Lapen'),
+        ('batu_kali', 'Batu Kali'),
+        ('kerikil', 'Kerikil'),
+        ('tanah', 'Tanah'),
+    ]
+    pavement_type = models.CharField(
+        max_length=20,
+        choices=PAVEMENT_TYPE_CHOICES,
+        verbose_name="Pavement Type",
+    )
+
+    # Shoulder Fields
+    shoulder_L_width = models.FloatField(verbose_name="Shoulder Left Width (m)", null=True, blank=True)
+    shoulder_L_type = models.CharField(
+        max_length=20,
+        choices=PAVEMENT_TYPE_CHOICES,
+        verbose_name="Shoulder Left Type",
+        null=True,
+        blank=True,
+    )
+    shoulder_R_width = models.FloatField(verbose_name="Shoulder Right Width (m)", null=True, blank=True)
+    shoulder_R_type = models.CharField(
+        max_length=20,
+        choices=PAVEMENT_TYPE_CHOICES,
+        verbose_name="Shoulder Right Type",
+        null=True,
+        blank=True,
+    )
+
+    # Drain Type Choices
+    DRAIN_TYPE_CHOICES = [
+        ('tak_ada', 'Tak Ada'),
+        ('tak_perlu', 'Tak Perlu'),
+        ('tanah', 'Tanah'),
+        ('pasangan_batu_terbuka', 'Pasangan Batu Terbuka'),
+        ('pasangan_batu_tertutup', 'Pasangan Batu Tertutup'),
+    ]
+    drain_type_left = models.CharField(
+        max_length=30,
+        choices=DRAIN_TYPE_CHOICES,
+        verbose_name="Drain Type Left",
+        null=True,
+        blank=True,
+    )
+    drain_type_right = models.CharField(
+        max_length=30,
+        choices=DRAIN_TYPE_CHOICES,
+        verbose_name="Drain Type Right",
+        null=True,
+        blank=True,
+    )
+
+    # Land Use Choices
+    LAND_USE_CHOICES = [
+        ('tak_ada', 'Tak Ada'),
+        ('agrikultur', 'Agrikultur'),
+        ('desa', 'Desa'),
+        ('kota', 'Kota'),
+        ('hutan', 'Hutan'),
+    ]
+    land_use_left = models.CharField(
+        max_length=20,
+        choices=LAND_USE_CHOICES,
+        verbose_name="Land Use Left",
+        null=True,
+        blank=True,
+    )
+    land_use_right = models.CharField(
+        max_length=20,
+        choices=LAND_USE_CHOICES,
+        verbose_name="Land Use Right",
+        null=True,
+        blank=True,
+    )
+
+    # Terrain Choices
+    TERRAIN_CHOICES = [
+        ('datar', 'Datar'),
+        ('bukit', 'Bukit'),
+        ('gunung', 'Gunung'),
+    ]
+    terrain = models.CharField(
+        max_length=20,
+        choices=TERRAIN_CHOICES,
+        verbose_name="Terrain",
+    )
+
+    # Impassable Fields
+    impassable = models.BooleanField(verbose_name="Impassable", default=False)
+    IMPASSABLE_REASON_CHOICES = [
+        ('jembatan_runtuh', 'Jembatan Runtuh'),
+        ('sungai_tanpa_jembatan', 'Sungai Tanpa Jembatan'),
+        ('tak_dapat_dilalui_musim', 'Tak Dapat Dilalui Selama Musim'),
+        ('lainnya', 'Lainnya'),
+    ]
+    reason = models.CharField(
+        max_length=30,
+        choices=IMPASSABLE_REASON_CHOICES,
+        verbose_name="Reason",
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"{self.link} - {self.province} - {self.kabupaten} - {self.chainage_from} to {self.chainage_to} km"
+    
+
+    
