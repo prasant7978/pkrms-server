@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Link,User,Role, DRP, LinkClass , RoadInventory, ConditionYear, RoadCondition , MCAcriteria
+from .models import Link,User,Role, DRP, LinkClass , RoadInventory,  RoadCondition 
 
 class LinkSerializer(serializers.ModelSerializer):
     province_code = serializers.CharField(source="province.code", read_only=True)
@@ -68,10 +68,7 @@ class RoadInventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = RoadInventory
         fields = '__all__'
-class ConditionYearSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConditionYear
-        fields = '__all__'
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -87,23 +84,6 @@ class RoadConditionSerializer(serializers.ModelSerializer):
         model = RoadCondition
         fields = '__all__'
 
-
-class MCAcriteriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MCAcriteria
-        fields = [
-            'id',
-            'link',
-            'kabupaten',
-            'province',
-            'link_status',
-            'link_number',
-            'MCA_1',
-            'MCA_2',
-            'MCA_3',
-            'MCA_4'
-        ]
-        read_only_fields = ['link_number']
 
 
 

@@ -6,14 +6,7 @@ from django.utils import timezone
 
 
 
-class Balai(models.Model):
-    
-    name = models.CharField(max_length=100, verbose_name="Balai Name")
-    balai_code = models.BigIntegerField(null=True, blank=True)
-    def __str__(self):
-        return self.name
 class Province(models.Model):
-    balai = models.ForeignKey(Balai, on_delete=models.CASCADE, verbose_name="BALAI")
     code = models.CharField(max_length=10, unique=True, verbose_name="Province Code")
     name = models.CharField(max_length=100, verbose_name="Province Name")
     default_province = models.BooleanField(default=False, verbose_name="Default Province")
@@ -21,6 +14,16 @@ class Province(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Balai(models.Model):
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
+    name = models.CharField(max_length=100, verbose_name="Balai Name")
+    balai_code = models.BigIntegerField(null=True, blank=True, verbose_name="Balai Code")
+
+    def __str__(self):
+        return f"{self.name} - {self.province.name}"
+
 
 
 
@@ -46,20 +49,15 @@ class PriorityArea(models.Model):
         return self.name
 
 
-class CorridorName(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Corridor Name")
 
-    def __str__(self):
-        return self.name
 
 class Link(models.Model):
-    # Foreign key to link status
+    # Status choices
     STATUS_CHOICES = [
         ('provincial', 'Provincial'),
-        ('Kabupaten', 'Kabupaten'),
-       
+        ('kabupaten', 'Kabupaten'),
     ]
-    link_status = models.CharField(
+    status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         verbose_name="Link Status",
@@ -67,68 +65,62 @@ class Link(models.Model):
         blank=True
     )
 
-    # Foreign key to Province and Kabupaten
+    # Foreign keys to Province and Kabupaten
     province = models.ForeignKey(
-        Province, 
-        on_delete=models.CASCADE, 
-        related_name="links", 
+        Province,
+        on_delete=models.CASCADE,
+        related_name="links",
         verbose_name="Province Code",
         null=True,
         blank=True
     )
     kabupaten = models.ForeignKey(
-        Kabupaten, 
-        on_delete=models.CASCADE, 
-        related_name="links", 
+        Kabupaten,
+        on_delete=models.CASCADE,
+        related_name="links",
         verbose_name="Kabupaten Code",
         null=True,
         blank=True
     )
 
-    # Link fields
-    link_number = models.IntegerField(
-        unique=True, 
+    # Link details
+    link_code = models.IntegerField(
+        unique=True,
         verbose_name="Link Number",
         null=True,
         blank=True
     )
     link_name = models.CharField(
-        max_length=255, 
+        max_length=255,
         verbose_name="Link Name",
         null=True,
         blank=True
     )
-    link_function = models.CharField(
-        max_length=255, 
-        verbose_name="Link Function",
-        null=True,
-        blank=True
-    )
-    official_length_km = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+    link_length_official = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         verbose_name="Link Official Length (km)",
         null=True,
         blank=True
     )
-    actual_length_km = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+    link_length_actual = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         verbose_name="Link Actual Length (km)",
         null=True,
         blank=True
     )
 
-    # Choices for highest access (without forcing a default)
+    # Access status choices
     HIGHEST_ACCESS_CHOICES = [
         ('nasional', 'Nasional'),
         ('provinsi', 'Provinsi'),
         ('kabupaten', 'Kabupaten'),
         ('lokal', 'Lokal'),
     ]
-    highest_access = models.CharField(
-        max_length=20, 
-        choices=HIGHEST_ACCESS_CHOICES, 
+    access_status = models.CharField(
+        max_length=20,
+        choices=HIGHEST_ACCESS_CHOICES,
         verbose_name="Highest Link Access",
         null=True,
         blank=True
@@ -143,18 +135,62 @@ class Link(models.Model):
         ('lokal', 'Lokal'),
         ('lingkungan', 'Lingkungan'),
     ]
-    link_function = models.CharField(
-        max_length=50, 
-        choices=LINK_FUNCTION_CHOICES, 
+    function = models.CharField(
+        max_length=50,
+        choices=LINK_FUNCTION_CHOICES,
         verbose_name="Link Function",
         null=True,
         blank=True
     )
-    priority_area = models.ForeignKey(PriorityArea, on_delete=models.SET_NULL, null=True, blank=True)
-    corridor_name = models.ForeignKey(CorridorName, on_delete=models.SET_NULL, null=True, blank=True)
-    def __str__(self):
-        return f"{self.link_name} ({self.link_number})"
 
+    # Link class choices
+    LINK_CLASS_CHOICES = [
+        ('I', '10 tons'),
+        ('II', '10 tons'),
+        ('IIIA', '8 tons'),
+        ('IIIB', '5 tons'),
+        ('IIIC', '3.5 tons'),
+    ]
+    link_class = models.CharField(
+        max_length=10,
+        choices=LINK_CLASS_CHOICES,
+        default='I',
+        verbose_name="Link Class",
+        null=True,
+        blank=True
+    )
+
+    # Additional fields
+    wti = models.IntegerField(null=True, blank=True)
+    mca2 = models.IntegerField(null=True, blank=True)
+    mca3 = models.IntegerField(null=True, blank=True)
+    mca4 = models.IntegerField(null=True, blank=True)
+    mca5 = models.IntegerField(null=True, blank=True)
+    project_number = models.IntegerField(null=True, blank=True)
+    cum_esa = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        verbose_name="Cumulative ESA",
+        null=True,
+        blank=True
+    )
+    esa0 = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        verbose_name="ESA0",
+        null=True,
+        blank=True
+    )
+    aadt = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        verbose_name="Annual Average Daily Traffic",
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.link_name} ({self.link_code})"
 
 
 
@@ -212,12 +248,7 @@ class LinkClass(models.Model):
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
     link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
-    total_length = models.IntegerField(null=True, blank = True)
-    unit = models.CharField(
-        max_length=10,
-        default='km',
-        verbose_name="Unit of Measurement"
-    )
+    KmClass = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilometer Class")
     LINK_CLASS_CHOICES = [
         ('I', '10 tons'),
         ('II', '10 tons'),
@@ -227,7 +258,7 @@ class LinkClass(models.Model):
     ]
 
     # Example of the new field
-    link_class = models.CharField(
+    Class = models.CharField(
         max_length=10,
         choices= LINK_CLASS_CHOICES,
         default='I',
@@ -236,12 +267,6 @@ class LinkClass(models.Model):
 
 
 
-class CorridorLink(models.Model):
-    link = models.ForeignKey('Link', on_delete=models.CASCADE, related_name="corridor_links", verbose_name="Link")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
-
-    def __str__(self):
-        return f"{self.link.link_name} - {self.link.link_number}"
 
 
 
@@ -250,7 +275,7 @@ class LinkKabupaten(models.Model):
     link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
     kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
     province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
-    link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
+    #link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
     drp_from = models.IntegerField(null=True, blank=True)
     drp_to = models.IntegerField(null=True, blank=True)
 
@@ -263,219 +288,16 @@ class LinkKacematan(models.Model):
     link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
     kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
     province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
-    link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
+   # link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
     drp_from = models.IntegerField(null=True, blank=True)
     drp_to = models.IntegerField(null=True, blank=True)
     def __str__(self):
         return f"{self.link.link_name} - {self.kabupaten.name} from {self.drp_from} to {self.drp_to}"
     
-class RoadInventory(models.Model):
-    link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
-    kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
-    province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
-    link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)
-    # Chainage from/to fields
-    chainage_from = models.FloatField(verbose_name="Chainage From")
-    chainage_to = models.FloatField(verbose_name="Chainage To")
-
-    # Subtype width fields
-    row_subtype_width = models.FloatField(verbose_name="Row Subtype Width (m)")
-    pavement_subtype_width = models.FloatField(verbose_name="Pavement Subtype Width (m)")
-
-    # Pavement type choices
-    PAVEMENT_CHOICES = [
-        ('beton', 'Beton'),
-        ('blok_beton', 'Blok Beton'),
-        ('aspal', 'Aspal'),
-        ('lapen', 'Lapen'),
-        ('batu_kali', 'Batu Kali'),
-        ('keriki', 'Keriki'),
-        ('tanah', 'Tanah'),
-    ]
-
-    pavement_type = models.CharField(
-        max_length=20,
-        choices=PAVEMENT_CHOICES,
-        default='beton',
-        verbose_name="Pavement Type"
-    )
-
-    # Shoulder - L and Shoulder - R fields
-    shoulder_L_subtype_width = models.FloatField(
-        verbose_name="Shoulder-L Subtype Width (m)"
-    )
-    shoulder_L_type = models.CharField(
-        max_length=20,
-        choices=PAVEMENT_CHOICES,
-        default='beton',
-        verbose_name="Shoulder-L Type"
-    )
-
-    shoulder_R_subtype_width = models.FloatField(
-        verbose_name="Shoulder-R Subtype Width (m)"
-    )
-    shoulder_R_type = models.CharField(
-        max_length=20,
-        choices=PAVEMENT_CHOICES,
-        default='beton',
-        verbose_name="Shoulder-R Type"
-    )
-
-    # Drain types with multiple options
-    DRAIN_CHOICES = [
-        ('tak_ada', 'Tak Ada'),
-        ('tak_perlu', 'Tak Perlu'),
-        ('tanha', 'Tanha'),
-        ('pasangan_batu_terbuka', 'Pasangan Batu Terbuka'),
-        ('pasangan_batu_tertutup', 'Pasangan Batu Tertutup'),
-    ]
-
-    drain_type_left = models.CharField(
-        max_length=30,
-        choices=DRAIN_CHOICES,
-        default='tak_ada',
-        verbose_name="Drain Type Left"
-    )
-    drain_type_right = models.CharField(
-        max_length=30,
-        choices=DRAIN_CHOICES,
-        default='tak_ada',
-        verbose_name="Drain Type Right"
-    )
-
-    # Land use types with options
-    LAND_USE_CHOICES = [
-        ('tak_ada', 'Tak Ada'),
-        ('agrikultur', 'Agrikultur'),
-        ('desa', 'Desa'),
-        ('kota', 'Kota'),
-        ('hutan', 'Hutan'),
-    ]
-
-    land_use_left = models.CharField(
-        max_length=30,
-        choices=LAND_USE_CHOICES,
-        default='tak_ada',
-        verbose_name="Land Use Left"
-    )
-    land_use_right = models.CharField(
-        max_length=30,
-        choices=LAND_USE_CHOICES,
-        default='tak_ada',
-        verbose_name="Land Use Right"
-    )
-
-    # Terrain type field
-    TERRAIN_CHOICES = [
-        ('datar', 'Datar'),
-        ('bukit', 'Bukit'),
-        ('gunung', 'Gunung'),
-    ]
-
-    terrain = models.CharField(
-        max_length=20,
-        choices=TERRAIN_CHOICES,
-        default='datar',
-        verbose_name="Terrain Type"
-    )
-
-    # Impassable field with a reason
-    IMPASSABLE_CHOICES = [
-        ('jembatan_runtuh', 'Jembatan Runtuh'),
-        ('dungsitapna_jembatan', 'Dungsitapna Jembatan'),
-        ('tak_dapat_dilalui_selama_musim', 'Tak Dapat Dilalui Selama Musim'),
-        ('lainnya', 'Lainnya'),
-    ]
-
-    impassable = models.BooleanField(default=False, verbose_name="Impassable")
-    impassable_reason = models.CharField(
-        max_length=50,
-        choices=IMPASSABLE_CHOICES,
-        default='lainnya',
-        verbose_name="Impassable Reason"
-    )
-
-    def __str__(self):
-        return f"{self.link.link_name} - {self.kabupaten.name} from {self.chainage_from} to {self.chainage_to}"
-    
-
-
-class ConditionYear(models.Model):
-    """
-    Model to represent the year of manual data entry for road condition surveys.
-    """
-    year = models.PositiveIntegerField(verbose_name="Survey Year")
-   
-
-    def __str__(self):
-        return f"Condition Year: {self.year}"
-
-
-class RoadCondition(models.Model):
-    """
-    Model to represent road conditions associated with links, kabupaten, and province
-    with reference to a condition year.
-    """
-    # Foreign keys
-    link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
-    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
-    province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
-    link_status = models.CharField(
-        max_length=20,
-        choices=[('provincial', 'Provincial'), ('kabupataen', 'Kabupataen')],  # Replace this with Link.STATUS_CHOICES if Link is defined
-        verbose_name="Link Status"
-    )
-    # Reference to the ConditionYear model
-    condition_year = models.ForeignKey(ConditionYear, on_delete=models.CASCADE, verbose_name="Condition Year")
-    
-    # Additional fields
-    survey_year = models.PositiveIntegerField(verbose_name="Survey Year")
-    manual_data_entry = models.TextField(
-        blank=True, 
-        null=True, 
-        verbose_name="Manual Data Entry Survey"
-    )
-    def __str__(self):
-        return f"{self.link.link_name} - {self.kabupaten.name} ({self.link_status}) Survey: {self.survey_year}"
-    
 
 
 
 
-class MCAcriteria(models.Model):
-    # Foreign keys
-    link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
-    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
-    province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
-    
-    link_status = models.CharField(
-        max_length=20,
-        choices=[('provincial', 'Provincial'), ('kabupataen', 'Kabupataen')],
-        verbose_name="Link Status"
-    )
-
-    link_number = models.IntegerField(
-        unique=True, 
-        verbose_name="Link Number", 
-        null=True,
-        blank=True
-    )
-    # MCA fields with choices
-    MCA_1 = models.CharField(max_length=100, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
-    MCA_2 = models.CharField(max_length=100, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
-    MCA_3 = models.CharField(max_length=100, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
-    MCA_4 = models.CharField(max_length=100, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
-    
-    def save(self, *args, **kwargs):
-        """
-        Inherit the link_number from the related Link instance when saving.
-        """
-        if self.link:
-            self.link_number = self.link.link_number  # Set the inherited link number
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"MCA Criteria for Link: {self.link.link_number}, Status: {self.link_status}"
     
 
 # Culvert Section API  for pkrms 
@@ -485,11 +307,7 @@ class CulvertInventory(models.Model):
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
     
-    link_status = models.CharField(
-        max_length=20,
-        choices=[('provincial', 'Provincial'), ('kabupataen', 'Kabupataen')],
-        verbose_name="Link Status"
-    )
+    
 
     # Other fields
     chainage = models.FloatField(help_text="Chainage in kilometers")
@@ -543,20 +361,10 @@ class CulvertCondition(models.Model):
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
 
-    # Link Status Choices
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        help_text="The status of the link (e.g., Provincial or Kabupaten)"
-    )
+    
 
     # Reference to the ConditionYear model
-    condition_year = models.ForeignKey('ConditionYear', on_delete=models.CASCADE, verbose_name="Condition Year")
+   
     culvert_number = models.ForeignKey('CulvertInventory', on_delete=models.CASCADE, verbose_name="Culvert Number")
 
     # Condition Choices
@@ -628,17 +436,7 @@ class Retaining_walls(models.Model):
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province", default=True)
 
-    # Link Status Choices
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        default=True,
-    )
+    
     WALL_SIDE_CHOICES = [
         ('left', 'Left'),
         ('right', 'Right'),
@@ -688,19 +486,10 @@ class Retaining_walls_Condition(models.Model):
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province", default=True)
     # Reference to the ConditionYear model
-    condition_year = models.ForeignKey('ConditionYear', on_delete=models.CASCADE, verbose_name="Condition Year")
+   
     wall_number = models.ForeignKey('Retaining_walls', on_delete=models.CASCADE, verbose_name="wall Number")
-    # Link Status Choices
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        default=True,
-    )
+    # Link Status Choicescondition_ye
+   
 
     wall_Mortar_needed = models.IntegerField(null=True, blank=True)
     wall_repair_needed = models.IntegerField(null=True, blank=True)
@@ -715,16 +504,7 @@ class Traffic_volume(models.Model):
     link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link", default=True)
     kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
     province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province", default=True)
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        default=True,
-    )
+   
     missing_data = models.BooleanField()
     surveyed_by = models.CharField(max_length=200, null=True, blank=True)
     survey_year = models.IntegerField( null=True, blank=True)
@@ -769,23 +549,6 @@ class Traffic_weighting_factors(models.Model):
     Pickup_WTI_FACTOR = models.BigIntegerField()
     Pickup_VDF_Factor = models.BigIntegerField()
 
-class Periodic_UnitCost(models.Model):
- 
-    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
-    province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province", default=True)
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        default=True,
-    )
-
-    overlay_thickness = models.IntegerField()
-    periodic_maintenance_unit_cost = models.FloatField()
 
 
   # hirerachy level code 
@@ -884,23 +647,20 @@ class RoadInventory(models.Model):
     kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten", default=True)
     province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province", default=True)
 
-    # Link Status Choices
-    LINK_STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    link_status = models.CharField(
-        max_length=20,
-        choices=LINK_STATUS_CHOICES,
-        verbose_name="Link Status",
-        default='provincial',
-    )
+   
+    chainage_from = models.IntegerField(verbose_name="Chainage From (km)")
+    chainage_to = models.IntegerField(verbose_name="Chainage To (km)")
+    DRP_from = models.IntegerField(verbose_name="drp in (km)")
+    DRP_to = models.IntegerField()
+    offset_from=models.IntegerField()
+    offset_to =models.IntegerField()
+    pave_width = models.IntegerField()
+    row = models.IntegerField()
+    
+    should_width_L = models.IntegerField()
+    should_width_R = models.IntegerField()
 
-    # Chainage Fields
-    chainage_from = models.FloatField(verbose_name="Chainage From (km)")
-    chainage_to = models.FloatField(verbose_name="Chainage To (km)")
-    row_width = models.FloatField(verbose_name="ROW Width (m)")
-    pavement_width = models.FloatField(verbose_name="Pavement Width (m)")
+
 
     # Pavement Type Choices
     PAVEMENT_TYPE_CHOICES = [
@@ -919,7 +679,7 @@ class RoadInventory(models.Model):
     )
 
     # Shoulder Fields
-    shoulder_L_width = models.FloatField(verbose_name="Shoulder Left Width (m)", null=True, blank=True)
+    shoulder_L_width = models.IntegerField(verbose_name="Shoulder Left Width (m)", null=True, blank=True)
     shoulder_L_type = models.CharField(
         max_length=20,
         choices=PAVEMENT_TYPE_CHOICES,
@@ -1014,4 +774,170 @@ class RoadInventory(models.Model):
         return f"{self.link} - {self.province} - {self.kabupaten} - {self.chainage_from} to {self.chainage_to} km"
     
 
+
+
+class RoadCondition(models.Model):
+    # Foreign Keys
+    province = models.ForeignKey('Province', on_delete=models.CASCADE, related_name='road_conditions')
     
+    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, related_name='road_conditions')
+    link = models.ForeignKey('Link', on_delete=models.CASCADE, related_name='road_conditions')
+
+    # Chainage
+    chainage_from = models.FloatField()
+    chainage_to = models.FloatField()
+
+    # Boolean Fields
+    roughness = models.BooleanField(default=False)
+    road_marking_left = models.BooleanField(default=False)
+    road_marking_right = models.BooleanField(default=False)
+    analysis_base_year = models.BooleanField(default=False)
+    paved = models.BooleanField(default=False)
+    check_data = models.BooleanField(default=False)
+
+    # Area Fields (float for precision)
+    bleeding_area = models.FloatField()
+    ravelling_area = models.FloatField()
+    desintegration_area = models.FloatField()
+    crack_dep_area = models.FloatField()
+    patching_area = models.FloatField()
+    oth_crack_area = models.FloatField()
+    pothole_area = models.FloatField()
+    rutting_area = models.FloatField()
+    edge_damage_area = models.FloatField()
+    crossfall_area = models.FloatField()
+    depressions_area = models.FloatField()
+    erosion_area = models.FloatField()
+    waviness_area = models.FloatField()
+    gravel_thickness_area = models.FloatField()
+    concrete_cracking_area = models.FloatField()
+    concrete_spalling_area = models.FloatField()
+    concrete_structural_cracking_area = models.FloatField()
+
+    # Choices for Conditions
+    SHOULDER_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('di_atas_perkerasan', 'Di Atas Perkerasan'),
+        ('sama_tinggi', 'Sama Tinggi Dengan Perkerasan'),
+        ('di_bawah_perkerasan', 'Di Bawah Perkerasan'),
+        ('diperlukan_bahu_beton', 'Diperlukan Bahu Beton'),
+    ]
+    shoulder_left = models.CharField(max_length=50, choices=SHOULDER_OPTIONS)
+    shoulder_right = models.CharField(max_length=50, choices=SHOULDER_OPTIONS)
+
+    DRAIN_OPTIONS = [
+        ('tersumbat', 'Tersumbat'),
+        ('tidak_ada', 'Tidak Ada'),
+        ('bersih', 'Bersih'),
+        ('diperlukan_pasangan', 'Diperlukan Drainase Pasangan'),
+        ('diperlukan_tanah', 'Diperlukan Drainase Tanah'),
+        ('erosi', 'Erosi'),
+    ]
+    drain_left = models.CharField(max_length=50, choices=DRAIN_OPTIONS)
+    drain_right = models.CharField(max_length=50, choices=DRAIN_OPTIONS)
+
+    SLOPE_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('runtuh', 'Runtuh'),
+    ]
+    slope_left = models.CharField(max_length=50, choices=SLOPE_OPTIONS)
+    slope_right = models.CharField(max_length=50, choices=SLOPE_OPTIONS)
+
+    FOOTPATH_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('baik_aman', 'Baik/Aman'),
+        ('bahaya', 'Bahaya'),
+    ]
+    footpath_left = models.CharField(max_length=50, choices=FOOTPATH_OPTIONS)
+    footpath_right = models.CharField(max_length=50, choices=FOOTPATH_OPTIONS)
+
+    # Road Furniture
+    sign_left = models.FloatField()
+    sign_right = models.FloatField()
+    guidepost_left = models.FloatField()
+    guidepost_right = models.FloatField()
+    barrier_left = models.FloatField()
+    barrier_right = models.FloatField()
+
+    # Additional Fields
+    iri = models.FloatField()
+    rci = models.FloatField()
+    segment_tti = models.FloatField()
+    survey_by = models.CharField(max_length=255)
+    survey_date = models.DateField()
+    section_status = models.CharField(max_length=255)
+    
+    # Pavement Fields
+    PAVEMENT_OPTIONS = [
+        ('asphalt', 'Asphalt'),
+        ('concrete', 'Concrete'),
+        ('unpaved', 'Unpaved'),
+    ]
+    pavement = models.CharField(max_length=50, choices=PAVEMENT_OPTIONS)
+
+    # Concrete Specific Fields
+    concrete_corner_break_no = models.IntegerField()
+    concrete_pumping_no = models.IntegerField()
+    concrete_blowouts_area = models.FloatField()
+
+    # Composition
+    COMPOSITION_OPTIONS = [
+        ('baik_rapat', 'Baik/Rapat'),
+        ('kasar', 'Kasar'),
+    ]
+    composition = models.CharField(max_length=50, choices=COMPOSITION_OPTIONS)
+
+    # Crack Details
+    CRACK_TYPE_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('tidak_berhubungan', 'Tidak Berhubungan'),
+        ('saling_berhubungan', 'Saling Berhubungan'),
+    ]
+    crack_type = models.CharField(max_length=50, choices=CRACK_TYPE_OPTIONS)
+
+    CRACK_WIDTH_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('<1mm', '<1mm'),
+        ('1-5mm', '1-5mm'),
+        ('>5mm', '>5mm'),
+    ]
+    crack_width = models.CharField(max_length=50, choices=CRACK_WIDTH_OPTIONS)
+
+    # Pothole and Rutting Details
+    pothole_count = models.IntegerField()
+    POTHOLE_SIZE_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('kecil_dangkal', 'Kecil-Dangkal'),
+        ('kecil_dalam', 'Kecil-Dalam'),
+        ('besar_dangkal', 'Besar-Dangkal'),
+        ('besar_dalam', 'Besar-Dalam'),
+    ]
+    pothole_size = models.CharField(max_length=50, choices=POTHOLE_SIZE_OPTIONS)
+
+    RUT_DEPTH_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('<1cm', '<1cm'),
+        ('1-3cm', '1-3cm'),
+        ('>3cm', '>3cm'),
+    ]
+    rut_depth = models.CharField(max_length=50, choices=RUT_DEPTH_OPTIONS)
+
+    # Shoulder Conditions
+    SHOULDER_COND_OPTIONS = [
+        ('tidak_ada', 'Tidak Ada'),
+        ('baik_rata', 'Baik/Rata'),
+        ('bekas_erosi_ringan', 'Bekas RD/Erosi Ringan'),
+        ('bekas_erosi_berat', 'Bekas RD/Erosi Berat'),
+    ]
+    shoulder_cond_left = models.CharField(max_length=50, choices=SHOULDER_COND_OPTIONS)
+    shoulder_cond_right = models.CharField(max_length=50, choices=SHOULDER_COND_OPTIONS)
+
+    # Miscellaneous
+    crossfall_shape = models.FloatField()
+    gravel_size = models.FloatField()
+    gravel_thickness = models.FloatField()
+    distribution = models.FloatField()
+    edge_damage_area_right = models.FloatField()
+
+    def __str__(self):
+        return f"Road Condition for {self.link} ({self.chainage_from} - {self.chainage_to})"

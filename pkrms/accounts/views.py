@@ -8,17 +8,17 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
-from .models import Traffic_weighting_factors, Periodic_UnitCost
-from .models import ApprovalRequest, Traffic_volume,Traffic_weighting_factors,Link,Retaining_walls,Retaining_walls_Condition,CulvertCondition,CulvertInventory,MCAcriteria,ConditionYear,RoadCondition, DRP,RoadInventory, Province, Kabupaten , LinkClass, CorridorLink, PriorityArea,LinkKabupaten, LinkKacematan, CorridorName
+from .models import Traffic_weighting_factors
+from .models import ApprovalRequest, Traffic_volume,Traffic_weighting_factors,Link,Retaining_walls,Retaining_walls_Condition,CulvertCondition,CulvertInventory,RoadCondition, DRP,RoadInventory, Province, Kabupaten , LinkClass,  PriorityArea,LinkKabupaten, LinkKacematan
 from rest_framework import serializers
-from .serializers import RoadInventorySerializer,MCAcriteriaSerializer, RoadInventorySerializer, LinkSerializer, DRPSerializer , LinkClassSerializer, LinkKabupatenSerializer, LinkKacematanSerializer
+from .serializers import RoadInventorySerializer, RoadInventorySerializer, LinkSerializer, DRPSerializer , LinkClassSerializer, LinkKabupatenSerializer, LinkKacematanSerializer
 from rest_framework.response import Response
 from rest_framework import status 
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.generics import GenericAPIView
 from django.shortcuts import render, redirect
-from .serializers import ConditionYearSerializer, RoadConditionSerializer
+from .serializers import  RoadConditionSerializer
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -405,9 +405,9 @@ def balai_dashboard(request):
        # Fetching province and kabupaten links
         province_links = Link.objects.filter(province=logged_in_user.province)
         kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
-        retaining_wall_province = Retaining_walls.objects.filter(province=logged_in_user.province)
-        retaining_wall_kabupaten = Retaining_walls.objects.filter(Kabupaten=logged_in_user.kabupaten)
-        links= Link.objects.all()
+        #retaining_wall_province = Retaining_walls.objects.filter(province=logged_in_user.province)
+        #retaining_wall_kabupaten = Retaining_walls.objects.filter(Kabupaten=logged_in_user.kabupaten)
+        #links= Link.objects.all()
         #
         # Adding the province and kabupaten links to the response data
         return Response({
@@ -415,9 +415,9 @@ def balai_dashboard(request):
             "approval_requests":list(approval_requests.values()),
             'province_links': list(province_links.values()),
             'kabupaten_links': list(kabupaten_links.values()),
-            'links': list(links.values()),
-            "retaining_wall_kabupaten": list(retaining_wall_kabupaten.values()),
-            "retaining_wall_province": list(retaining_wall_province.values())
+            #'links': list(links.values()),
+            #"retaining_wall_kabupaten": list(retaining_wall_kabupaten.values()),
+            #"retaining_wall_province": list(retaining_wall_province.values())
         })
 
     elif request.method == 'POST':
