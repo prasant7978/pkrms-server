@@ -7,18 +7,7 @@ class LinkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Link
-        fields = [
-            "id",
-            "link_status",
-            "link_number",
-            "link_name",
-            "link_function",
-            "official_length_km",
-            "actual_length_km",
-            "highest_access",
-            "province_code",
-            "kabupaten_code",
-        ]
+        fields = "__all__"
 
 class DRPSerializer(serializers.ModelSerializer):
     class Meta:

@@ -404,7 +404,7 @@ def balai_dashboard(request):
 
        # Fetching province and kabupaten links
         province_links = Link.objects.filter(province=logged_in_user.province)
-        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.kabupaten)
         #retaining_wall_province = Retaining_walls.objects.filter(province=logged_in_user.province)
         #retaining_wall_kabupaten = Retaining_walls.objects.filter(Kabupaten=logged_in_user.kabupaten)
         #links= Link.objects.all()
@@ -412,6 +412,7 @@ def balai_dashboard(request):
         # Adding the province and kabupaten links to the response data
         return Response({
             "approved_users":list(approved_users.values()),
+            "province_users_pending_approval": list(province_users_pending_approval.values()),
             "approval_requests":list(approval_requests.values()),
             'province_links': list(province_links.values()),
             'kabupaten_links': list(kabupaten_links.values()),
@@ -440,115 +441,78 @@ def balai_dashboard(request):
 
         return Response({'detail': 'Invalid data'}, status=400)
         
-#API for province dashboard
+#API for province dashboard this view will handle complete login in order to display the data for provience_LG AND kabupatn_LG.
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def province_dashboard(request):
     logged_in_user = request.user
-    
+
     # Ensure the user has the required role
-    if request.user.role.role_name != Role.PROVINCIAL_LG:
+    if logged_in_user.role.role_name != Role.PROVINCIAL_LG:
         return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
 
     if request.method == 'GET':
-        # Fetching province and kabupaten links
+        # Fetch province and kabupaten links for the assigned province
         province_links = Link.objects.filter(province=logged_in_user.province)
-        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.kabupaten)
-        retaining_wall_province = Retaining_walls.objects.filter(province=logged_in_user.province)
-        retaining_wall_kabupaten = Retaining_walls.objects.filter(Kabupaten=logged_in_user.kabupaten)
-        
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+
         # Fetching pending approval requests for Kabupaten users
         kabupaten_users_pending_approval = ApprovalRequest.objects.filter(
             user__role__role_name=Role.KABUPATEN_LG, 
             status='Pending',
             approver=request.user
         )
-        
+
         # Serialize the approval requests
         approval_request_serializer = ApprovalRequestSerializer(kabupaten_users_pending_approval, many=True)
 
-        # Fetch query parameters for filtering Retaining_walls_Condition
-        condition_year_id = request.query_params.get('condition_year')
-        link_id = request.query_params.get('link')
-        
-        retaining_walls_conditions = []
-        if condition_year_id and link_id:
-            # Fetch Retaining_walls_Condition data based on condition_year and link
-            retaining_walls_conditions = Retaining_walls_Condition.objects.filter(
-                condition_year_id=condition_year_id,
-                link_id=link_id
-            )
-            retaining_walls_conditions_serializer = RetainingWallsConditionSerializer(retaining_walls_conditions, many=True)
-        else:
-            retaining_walls_conditions_serializer = None
-        
         response_data = {
             'kabupaten_users_pending_approval': approval_request_serializer.data,
             'province_links': province_links.values(),
             'kabupaten_links': kabupaten_links.values(),
-            'retaining_wall_province': retaining_wall_province.values(),
-            "retaining_wall_kabupaten": retaining_wall_kabupaten.values()
         }
-        
-        if retaining_walls_conditions_serializer:
-            response_data['retaining_walls_conditions'] = retaining_walls_conditions_serializer.data
-        else:
-            response_data['retaining_walls_conditions'] = "No condition_year and link provided."
 
         return Response(response_data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        # Handling the logic for filtering Retaining_walls_Condition
-        condition_year_id = request.data.get('condition_year')
-        link_id = request.data.get('link')
+        action = request.data.get('action')
 
-        if condition_year_id and link_id:
-            # Fetch Retaining_walls_Condition data based on condition_year and link provided in POST data
-            retaining_walls_conditions = Retaining_walls_Condition.objects.filter(
-                condition_year_id=condition_year_id,
-                link_id=link_id
-            )
-
-            if not retaining_walls_conditions.exists():
-                return Response(
-                    {"detail": "No data found for the provided condition year and link."},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-            
-            # Serialize the fetched data
-            retaining_walls_conditions_serializer = RetainingWallsConditionSerializer(retaining_walls_conditions, many=True)
-            return Response(
-                {"retaining_walls_conditions": retaining_walls_conditions_serializer.data},
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {"detail": "Both 'condition_year' and 'link' parameters are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        
-    request_id = request.data.get('request_id')
-    action = request.data.get('action')
-
-    if request_id and action:
+        # Handling user approval/rejection logic
+        if action in ['approve', 'reject']:
+            request_id = request.data.get('request_id')
             approval_request = get_object_or_404(ApprovalRequest, id=request_id, approver=request.user)
 
-    if action == 'approve':
-            approval_request.status = 'Approved'
-            approval_request.user.approved = True
-            approval_request.user.save()
-            approval_request.save()
-            return Response({'detail': f'User {approval_request.user.email} has been approved.'}, status=status.HTTP_200_OK)
+            if action == 'approve':
+                approval_request.status = 'Approved'
+                approval_request.user.approved = True
+                approval_request.user.save()
+                approval_request.save()
+                return Response({'detail': f'User {approval_request.user.email} has been approved.'}, status=status.HTTP_200_OK)
 
-    elif action == 'reject':
-            approval_request.status = 'Rejected'
-            approval_request.user.is_active = False
-            approval_request.user.save()
-            approval_request.save()
-            return Response({'detail': f'User {approval_request.user.email} has been rejected.'}, status=status.HTTP_200_OK)
+            elif action == 'reject':
+                approval_request.status = 'Rejected'
+                approval_request.user.is_active = False
+                approval_request.user.save()
+                approval_request.save()
+                return Response({'detail': f'User {approval_request.user.email} has been rejected.'}, status=status.HTTP_200_OK)
 
-    return Response({'detail': 'Invalid data or missing request_id/action'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Invalid action.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Logic to create a link for the assigned province
+        elif action == 'create_link':
+            link_serializer = LinkSerializer(data=request.data)
+            if link_serializer.is_valid():
+                # Ensure the link is created only for the assigned province
+                if request.data.get('province') != str(logged_in_user.province.id):
+                    return Response({"detail": "You can only create links for your assigned province."},
+                                    status=status.HTTP_403_FORBIDDEN)
+
+                link_serializer.save()
+                return Response(link_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'detail': 'Invalid data or missing action'}, status=status.HTTP_400_BAD_REQUEST)
 
 #API for kabupaten 
 @api_view(['GET'])
