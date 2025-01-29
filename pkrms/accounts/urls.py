@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from .views import BalaiViewSet, ProvinceViewSet, KabupatenViewSet, balai_dashboard,RoadInventoryAPIView
+from .views import BalaiViewSet, ProvinceViewSet, KabupatenViewSet, balai_dashboard
 from .views import Traffic_weighting_factors
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
@@ -26,10 +26,9 @@ urlpatterns = [
     path('api/kabupaten/', views.kabupaten_dashboard, name='kabupaten_dashboard'),
     path('api/superadmin/', views.superadmin_dashboard, name='superadmin_dashboard'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-     path('road-inventory/', RoadInventoryAPIView.as_view(), name='road_inventory_list_create'),
-
-    # For retrieving, updating, partially updating, and deleting a specific RoadInventory
-    path('road-inventory/<int:pk>/', RoadInventoryAPIView.as_view(), name='road_inventory_detail')
+    
 ]
+
+
 
 

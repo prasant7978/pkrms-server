@@ -48,21 +48,34 @@ class PriorityArea(models.Model):
     def __str__(self):
         return self.name
 
+class CODE_LinkStatus(models.Model):
+    Code = models.CharField(max_length=50, null=True, blank=True)
+    CodeDescription_Eng = models.CharField(max_length=500, null=True, blank=True)
+    CodeDescription_Ind = models.CharField(max_length=500, null=True, blank=True)
+    order = models.IntegerField()
 
+class CODE_LinkFunction(models.Model):
+    Code = models.CharField(max_length=50, null=True, blank=True)
+    CodeDescription_Eng = models.CharField(max_length=500, null=True, blank=True)
+    CodeDescription_Ind = models.CharField(max_length=500, null=True, blank=True)
+    order = models.IntegerField()
 
+class CODE_LinkClass(models.Model):
+    Code = models.CharField(max_length=50, null=True, blank=True)
+    CodeDescription_Eng = models.CharField(max_length=500, null=True, blank=True)
+    CodeDescription_Ind = models.CharField(max_length=500, null=True, blank=True)
+    order = models.IntegerField()
 
 class Link(models.Model):
     # Status choices
-    STATUS_CHOICES = [
-        ('provincial', 'Provincial'),
-        ('kabupaten', 'Kabupaten'),
-    ]
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
+    status = models.ForeignKey(
+        CODE_LinkClass, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
         verbose_name="Link Status",
-        null=True,
-        blank=True
+        related_name="links_with_status"
+        
     )
 
     # Foreign keys to Province and Kabupaten
@@ -111,53 +124,30 @@ class Link(models.Model):
         blank=True
     )
 
-    # Access status choices
-    HIGHEST_ACCESS_CHOICES = [
-        ('nasional', 'Nasional'),
-        ('provinsi', 'Provinsi'),
-        ('kabupaten', 'Kabupaten'),
-        ('lokal', 'Lokal'),
-    ]
-    access_status = models.CharField(
-        max_length=20,
-        choices=HIGHEST_ACCESS_CHOICES,
-        verbose_name="Highest Link Access",
-        null=True,
-        blank=True
-    )
+    # Access status
+    access_status = models.CharField(max_length=20, null=True, blank=True)
 
-    # Link function choices
-    LINK_FUNCTION_CHOICES = [
-        ('kollector_4', 'Kollector 4'),
-        ('kollector_2', 'Kollector 2'),
-        ('kollector_3', 'Kollector 3'),
-        ('arterial', 'Arterial'),
-        ('lokal', 'Lokal'),
-        ('lingkungan', 'Lingkungan'),
-    ]
-    function = models.CharField(
-        max_length=50,
-        choices=LINK_FUNCTION_CHOICES,
+    # Link function and class
+    function = models.ForeignKey(
+        CODE_LinkFunction, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
         verbose_name="Link Function",
-        null=True,
-        blank=True
+        related_name="links_with_function"
+
+        
     )
 
-    # Link class choices
-    LINK_CLASS_CHOICES = [
-        ('I', '10 tons'),
-        ('II', '10 tons'),
-        ('IIIA', '8 tons'),
-        ('IIIB', '5 tons'),
-        ('IIIC', '3.5 tons'),
-    ]
-    link_class = models.CharField(
-        max_length=10,
-        choices=LINK_CLASS_CHOICES,
-        default='I',
+    link_class = models.ForeignKey(
+        CODE_LinkClass, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
         verbose_name="Link Class",
-        null=True,
-        blank=True
+        related_name="links_with_class"
+
+        
     )
 
     # Additional fields
@@ -199,15 +189,16 @@ class Link(models.Model):
    
 class DRP(models.Model):
     # Foreign Keys
-    
-    province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
-    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
-    link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
+    province_code = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
+    kabupaten_code = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
+    link_No = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
 
     # Unique Fields
-    drp_number = models.CharField(max_length=50, unique=True, verbose_name="DRP Number", null=True,blank=True)
-    chainage = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Chainage")
-    drp_length = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="DRP Length")
+    DRP_Num = models.IntegerField(null=True, blank=True)
+    Chainage = models.IntegerField(null=True, blank=True)
+    DRP_Order = models.IntegerField(null=True, blank=True)
+    DRP_length = models.IntegerField(null=True, blank=True)
+
     DRP_TYPE_CHOICES = [
         ('link_start', 'Link Start'),
         ('link_end', 'Link End'),
@@ -218,36 +209,34 @@ class DRP(models.Model):
         ('other', 'Other'),
     ]
     
-    drp_type = models.CharField(
+    DRP_Type = models.CharField(
         max_length=50, 
         choices=DRP_TYPE_CHOICES, 
         verbose_name="DRP Type"
     )
    
-   
-    drp_description = models.TextField(verbose_name="DRP Description", null=True, blank=True)
-    comment = models.TextField(verbose_name="Comment", null=True, blank=True)
+    DRP_Desc = models.TextField(verbose_name="DRP Description", null=True, blank=True)
+    DRP_Comment = models.TextField(verbose_name="Comment", null=True, blank=True)
 
     # GPS Coordinates
-    gps_north_degree = models.IntegerField(verbose_name="North Degree")
-    gps_north_minute = models.IntegerField(verbose_name="North Minute")
-    gps_north_second = models.FloatField(verbose_name="North Second")
+    DPR_North_Deg = models.IntegerField(verbose_name="North Degree")
+    DPR_North_Min = models.IntegerField(verbose_name="North Minute")
+    DPR_North_Sec = models.FloatField(verbose_name="North Second")
 
-    gps_east_degree = models.IntegerField(verbose_name="East Degree")
-    gps_east_minute = models.IntegerField(verbose_name="East Minute")
-    gps_east_second = models.FloatField(verbose_name="East Second")
+    DPR_East_Deg = models.IntegerField(verbose_name="East Degree")
+    DPR_East_Min = models.IntegerField(verbose_name="East Minute")
+    DPR_East_sec = models.FloatField(verbose_name="East Second")
 
-    class Meta:
-        verbose_name = "DRP"
-        verbose_name_plural = "DRPs"
-        unique_together = ('drp_number', 'chainage')  # Ensures drp_number and chainage are unique together
+    
 
     def __str__(self):
-        return f"DRP {self.drp_number} ({self.link})"
+        return f"DRP {self.DRP_Num} ({self.link_No})"
+    
+
 class LinkClass(models.Model):
-    province = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
-    kabupaten = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
-    link = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
+    province_code = models.ForeignKey('Province', on_delete=models.CASCADE, verbose_name="Province")
+    kabupaten_code = models.ForeignKey('Kabupaten', on_delete=models.CASCADE, verbose_name="Kabupaten")
+    link_no = models.ForeignKey('Link', on_delete=models.CASCADE, verbose_name="Link")
     KmClass = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilometer Class")
     LINK_CLASS_CHOICES = [
         ('I', '10 tons'),
@@ -272,28 +261,33 @@ class LinkClass(models.Model):
 
 class LinkKabupaten(models.Model):
     """Model for Link-Kabupaten Relationships with extra foreign key logic."""
-    link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
-    kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
-    province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
-    #link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
-    drp_from = models.IntegerField(null=True, blank=True)
-    drp_to = models.IntegerField(null=True, blank=True)
+
+    province_code = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
+    link_code = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
+    kabupaten_code = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
+    
+    DRP_From = models.IntegerField(null=True, blank=True)
+    DRP_To = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.link.link_name} - {self.kabupaten.name} from {self.drp_from} to {self.drp_to}"
+        return f"{self.link_code.link_name} - {self.kabupaten_code.name} from {self.DRP_From} to {self.DRP_To}"
+
     
 
 
 class LinkKacematan(models.Model):
-    link = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
-    kabupaten = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
-    province = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
-   # link_status = models.CharField(max_length=20, choices=Link.STATUS_CHOICES)  # Link status from the Link model
-    drp_from = models.IntegerField(null=True, blank=True)
-    drp_to = models.IntegerField(null=True, blank=True)
-    def __str__(self):
-        return f"{self.link.link_name} - {self.kabupaten.name} from {self.drp_from} to {self.drp_to}"
+    """Model for Link-Kecamatan Relationships with extra foreign key logic."""
+
+    link_code = models.ForeignKey(Link, on_delete=models.CASCADE, verbose_name="Link")
+    kabupaten_code = models.ForeignKey(Kabupaten, on_delete=models.CASCADE, verbose_name="Kabupaten")
+    province_code = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province")
     
+    DRP_from = models.IntegerField(null=True, blank=True)
+    DRP_to = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.link_code.link_name} - {self.kabupaten_code.name} from {self.DRP_from} to {self.DRP_to}"
+
 
 
 

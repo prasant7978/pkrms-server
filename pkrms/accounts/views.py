@@ -432,18 +432,17 @@ def balai_dashboard(request):
             if action == 'approve':
                 user.approved = True
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been approved.'}, status=200)
+                return Response({'detail': f'province LG User {user.email} has been approved.'}, status=200)
             elif action == 'reject':
                 user.approved = False
                 user.is_active = False
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been rejected.'}, status=200)
+                return Response({'detail': f'province LG User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid data'}, status=400)
-        
-#API for province dashboard this view will handle complete login in order to display the data for provience_LG AND kabupatn_LG.
-
-@api_view(['GET', 'POST'])
+    
+    
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def province_dashboard(request):
     logged_in_user = request.user
@@ -455,188 +454,130 @@ def province_dashboard(request):
     if request.method == 'GET':
         # Fetch province and kabupaten links for the assigned province
         province_links = Link.objects.filter(province=logged_in_user.province)
-        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
+        kabupaten_links = Link.objects.filter(kabupaten__province=logged_in_user.province)
 
-        # Fetching pending approval requests for Kabupaten users
-        kabupaten_users_pending_approval = ApprovalRequest.objects.filter(
-            user__role__role_name=Role.KABUPATEN_LG, 
-            status='Pending',
-            approver=request.user
-        )
-
-        # Serialize the approval requests
-        approval_request_serializer = ApprovalRequestSerializer(kabupaten_users_pending_approval, many=True)
+        kabupaten_users_pending_approval = User.objects.filter(
+            role__role_name=Role.KABUPATEN_LG, 
+            approved=False
+        ) 
+        approved_users = User.objects.filter(role__role_name=Role.KABUPATEN_LG, approved=True)
+        approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
 
         response_data = {
-            'kabupaten_users_pending_approval': approval_request_serializer.data,
+            'kabupaten_users_pending_approval': kabupaten_users_pending_approval.values(),
+            "approved_users": approved_users.values(),
+            "approval_requests": approval_requests.values(),
             'province_links': province_links.values(),
-            'kabupaten_links': kabupaten_links.values(),
+            'kabupaten_links': kabupaten_links.values()
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
+        # Handling approval or rejection of Balai LG users
+        user_id = request.data.get('user_id')
         action = request.data.get('action')
 
-        # Handling user approval/rejection logic
-        if action in ['approve', 'reject']:
-            request_id = request.data.get('request_id')
-            approval_request = get_object_or_404(ApprovalRequest, id=request_id, approver=request.user)
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
 
             if action == 'approve':
-                approval_request.status = 'Approved'
-                approval_request.user.approved = True
-                approval_request.user.save()
-                approval_request.save()
-                return Response({'detail': f'User {approval_request.user.email} has been approved.'}, status=status.HTTP_200_OK)
-
+                user.approved = True
+                user.save()
+                return Response({'detail': f'Kabupaten LG User {user.email} has been approved.'}, status=200)
             elif action == 'reject':
-                approval_request.status = 'Rejected'
-                approval_request.user.is_active = False
-                approval_request.user.save()
-                approval_request.save()
-                return Response({'detail': f'User {approval_request.user.email} has been rejected.'}, status=status.HTTP_200_OK)
+                user.approved = False
+                user.is_active = False
+                user.save()
+                return Response({'detail': f'Kabupaten LG User {user.email} has been rejected.'}, status=200)
 
-            return Response({'detail': 'Invalid action.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Invalid data'}, status=400)
 
+    elif request.method == 'POST' and request.data.get('action') == 'create_link':
         # Logic to create a link for the assigned province
-        elif action == 'create_link':
-            link_serializer = LinkSerializer(data=request.data)
-            if link_serializer.is_valid():
-                # Ensure the link is created only for the assigned province
-                if request.data.get('province') != str(logged_in_user.province.id):
-                    return Response({"detail": "You can only create links for your assigned province."},
-                                    status=status.HTTP_403_FORBIDDEN)
+        link_serializer = LinkSerializer(data=request.data)
+        if link_serializer.is_valid():
+            # Ensure the link is created only for the assigned province
+            if str(request.data.get('province')) != str(logged_in_user.province.id):
+                return Response({"detail": "You can only create links for your assigned province."},
+                                 status=status.HTTP_403_FORBIDDEN)
 
-                link_serializer.save()
-                return Response(link_serializer.data, status=status.HTTP_201_CREATED)
-            return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            link_serializer.save()
+            return Response(link_serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response({'detail': 'Invalid data or missing action'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#API for kabupaten 
-@api_view(['GET'])
+    elif request.method == 'PUT':
+        # Update a link within the province
+        link_id = request.data.get('link_id')
+        link = get_object_or_404(Link, id=link_id, province=logged_in_user.province)
+
+        link_serializer = LinkSerializer(link, data=request.data, partial=True)
+        if link_serializer.is_valid():
+            link_serializer.save()
+            return Response(link_serializer.data, status=status.HTTP_200_OK)
+        return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        # Delete a link within the province
+        link_id = request.data.get('link_id')
+        link = get_object_or_404(Link, id=link_id, province=logged_in_user.province)
+        link.delete()
+        return Response({'detail': 'Link deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+    return Response({'detail': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def kabupaten_dashboard(request):
     logged_in_user = request.user
 
-    # Ensure the user has the appropriate role (Kabupaten LG role)
+    # Ensure the user has the required role
     if logged_in_user.role.role_name != Role.KABUPATEN_LG:
         return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
 
-    # Fetching the links associated with the logged-in user's kabupaten
-    kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.kabupaten)
-    retaining_wall_kabupaten = Retaining_walls.objects.filter(kabupaten=logged_in_user.kabupaten)
-    
-    # Fetch query parameters for filtering Retaining_walls_Condition
-    condition_year_id = request.query_params.get('condition_year')
-    link_id = request.query_params.get('link')
-    
-    retaining_walls_conditions = []
-    if condition_year_id and link_id:
-        # Fetch Retaining_walls_Condition data based on condition_year and link
-        retaining_walls_conditions = Retaining_walls_Condition.objects.filter(
-            condition_year_id=condition_year_id,
-            link_id=link_id
-        )
-        retaining_walls_conditions_serializer = RetainingWallsConditionSerializer(retaining_walls_conditions, many=True)
-    else:
-        retaining_walls_conditions_serializer = None
+    if request.method == 'GET':
+        # Fetch links associated with the logged-in user's kabupaten
+        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.kabupaten)
 
-    response_data = {
-        'kabupaten_links': kabupaten_links.values('id', 'link_name', 'official_length_km', 'actual_length_km', 'highest_access', 'link_function'),
-        'retaining_wall_kabupaten': retaining_wall_kabupaten.values()
-    }
-    
-    if retaining_walls_conditions_serializer:
-        response_data['retaining_walls_conditions'] = retaining_walls_conditions_serializer.data
-    else:
-        response_data['retaining_walls_conditions'] = "No condition_year and link provided."
+        # Serialize data
+        response_data = {
+            'kabupaten_links': kabupaten_links.values(),
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
-    return Response(response_data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        action = request.data.get('action')
+
+        if action == 'create_link':
+            link_serializer = LinkSerializer(data=request.data)
+            if link_serializer.is_valid():
+                if request.data.get('kabupaten') != str(logged_in_user.kabupaten.id):
+                    return Response({"detail": "You can only create links for your assigned kabupaten."},
+                                    status=status.HTTP_403_FORBIDDEN)
+                link_serializer.save()
+                return Response(link_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PUT':
+        link_id = request.data.get('link_id')
+        link = get_object_or_404(Link, id=link_id, kabupaten=logged_in_user.kabupaten)
+        
+        link_serializer = LinkSerializer(link, data=request.data, partial=True)
+        if link_serializer.is_valid():
+            link_serializer.save()
+            return Response(link_serializer.data, status=status.HTTP_200_OK)
+        return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        link_id = request.data.get('link_id')
+        link = get_object_or_404(Link, id=link_id, kabupaten=logged_in_user.kabupaten)
+        link.delete()
+        return Response({'detail': 'Link deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+    return Response({'detail': 'Invalid request method.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 
-class RoadInventoryAPIView(APIView):
-    """
-    API view to handle CRUD operations for RoadInventory.
-    Access is restricted to users with roles 'balai', 'province', or 'kabupaten'.
-    """
-    permission_classes = [IsAuthenticated]  # Require login for all methods
 
-    def has_permission_for_role(self, user):
-        """
-        Check if the user has one of the allowed roles.
-        """
-        allowed_roles = ['balai', 'province', 'kabupaten']
-        return user.role and user.role.role_name in allowed_roles
-
-    def get(self, request, *args, **kwargs):
-        # No role-based restriction for viewing data
-        link_name = request.query_params.get('link')  # Retrieve the link name from query parameters
-        if link_name:
-            try:
-                link = Link.objects.get(name=link_name)  # Assuming the Link model has a `name` field
-                inventories = RoadInventory.objects.filter(link=link)
-                serializer = RoadInventorySerializer(inventories, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            except Link.DoesNotExist:
-                return Response({'error': 'Link not found'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            inventories = RoadInventory.objects.all()
-            serializer = RoadInventorySerializer(inventories, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, *args, **kwargs):
-        if not self.has_permission_for_role(request.user):
-            return Response({'detail': 'You do not have permission to create data.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        serializer = RoadInventorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, *args, **kwargs):
-        if not self.has_permission_for_role(request.user):
-            return Response({'detail': 'You do not have permission to update data.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        try:
-            inventory = RoadInventory.objects.get(pk=kwargs['pk'])
-            serializer = RoadInventorySerializer(inventory, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except RoadInventory.DoesNotExist:
-            return Response({'error': 'RoadInventory not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    def patch(self, request, *args, **kwargs):
-        if not self.has_permission_for_role(request.user):
-            return Response({'detail': 'You do not have permission to partially update data.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        try:
-            inventory = RoadInventory.objects.get(pk=kwargs['pk'])
-            serializer = RoadInventorySerializer(inventory, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except RoadInventory.DoesNotExist:
-            return Response({'error': 'RoadInventory not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, *args, **kwargs):
-        if not self.has_permission_for_role(request.user):
-            return Response({'detail': 'You do not have permission to delete data.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        try:
-            inventory = RoadInventory.objects.get(pk=kwargs['pk'])
-            inventory.delete()
-            return Response({'message': 'Deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-        except RoadInventory.DoesNotExist:
-            return Response({'error': 'RoadInventory not found'}, status=status.HTTP_404_NOT_FOUND)

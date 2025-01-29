@@ -104,8 +104,8 @@ class UserRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     role = serializers.CharField(max_length=50)
-    balai = serializers.CharField(required=False)
-    province = serializers.IntegerField(required=False)
+    balai = serializers.CharField()
+    province = serializers.IntegerField()
     kabupaten = serializers.IntegerField(required=False)
 
 class OTPVerificationSerializer(serializers.Serializer):
@@ -143,7 +143,7 @@ class ApprovalRequestSerializer(serializers.ModelSerializer):
 
 
 
-from rest_framework import serializers
+
 from .models import Retaining_walls_Condition
 
 class RetainingWallsConditionSerializer(serializers.ModelSerializer):
