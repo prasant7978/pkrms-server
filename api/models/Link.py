@@ -1,7 +1,7 @@
 from django.db import models
 
-from api.models.Kabupaten import Kabupaten
-from api.models.Province import Province
+from api.models.kabupaten import Kabupaten
+from api.models.province import Province
 
 class Link(models.Model):
     linkNo = models.CharField(unique=True,null=False)
@@ -12,3 +12,6 @@ class Link(models.Model):
     province = models.ForeignKey(Province,on_delete=models.CASCADE,null= False)
     kabupaten = models.ForeignKey(Kabupaten,on_delete=models.CASCADE,null=False)
     
+
+    class Meta:
+        db_table = 'Link'

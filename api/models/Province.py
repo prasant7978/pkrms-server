@@ -7,4 +7,7 @@ class Province(models.Model):
     stable = models.IntegerField()
 
     class Meta:
-        db_table = 'Province'
+        db_table = "Province"  # Explicitly setting the table name
+
+    def __str__(self):
+        return self.provinceName
