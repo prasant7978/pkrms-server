@@ -1,6 +1,6 @@
 from django.db import models
 
-from api.models import Province
+from api.models.province import Province
 
 
 class Kabupaten(models.Model):
@@ -9,7 +9,10 @@ class Kabupaten(models.Model):
     IslandCode = models.CharField(max_length=5, blank=True)
     DefaultKabupaten = models.BooleanField(default=False)
     Stable = models.IntegerField()
-    Province = models.ForeignKey(Province, on_delete=models.CASCADE)
+    Province = models.ForeignKey(Province, on_delete=models.CASCADE, null=True,blank=True)
 
     class Meta:
         db_table = 'Kabupaten'
+
+    def __str__(self):
+        return self.KabupatenName
