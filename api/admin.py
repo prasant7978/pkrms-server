@@ -1,10 +1,10 @@
 from django.contrib import admin
-from api.models.user import User, ApprovalRequest
-from api.models.province import Province
-from api.models.balai import Balai
-from api.models.kabupaten import Kabupaten
-from api.models.link import Link
-from api.models.role import Role
+from api.models.User import User, ApprovalRequest
+from api.models.Province import Province
+from api.models.Balai import Balai
+from api.models.Kabupaten import Kabupaten
+from api.models.Link import Link
+from api.models.Role import Role
 # Register your models here.
 admin.site.register(User)
 admin.site.register(ApprovalRequest)

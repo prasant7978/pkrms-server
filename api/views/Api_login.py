@@ -12,8 +12,8 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models.role import Role
-from api.models.user import User,ApprovalRequest
+from api.models.Role import Role
+from api.models.User import User,ApprovalRequest
 from api.serializers.LoginSerializer import LoginSerializer
 from rest_framework.permissions import BasePermission
 from rest_framework.decorators import api_view, permission_classes

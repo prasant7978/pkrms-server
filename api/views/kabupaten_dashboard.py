@@ -27,12 +27,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from api.models.role import Role
-from api.models.link import Link
-from api.models.province import Province
-from api.models.kabupaten import Kabupaten
-from api.models.user import User,ApprovalRequest
-from api.models.balai import Balai
+from api.models.Role import Role
+from api.models.Link import Link
+from api.models.Province import Province
+from api.models.Kabupaten import Kabupaten
+from api.models.User import User,ApprovalRequest
+from api.models.Balai import Balai
 
 #seializers
 from api.serializers.LinkSerializer import LinkSerializer
@@ -78,7 +78,7 @@ def kabupaten_dashboard(request):
 
     elif request.method == 'PUT':
         link_id = request.data.get('link_id')
-        link = get_object_or_404(Link, id=link_id, kabupaten=logged_in_user.kabupaten)
+        link = get_object_or_404(Link, linkId=link_id, kabupaten=logged_in_user.kabupaten)
         
         link_serializer = LinkSerializer(link, data=request.data, partial=True)
         if link_serializer.is_valid():
@@ -89,7 +89,7 @@ def kabupaten_dashboard(request):
     elif request.method == 'PATCH':
         # PATCH method for partial updates of a link
         link_id = request.data.get('link_id')
-        link = get_object_or_404(Link, id=link_id, kabupaten=logged_in_user.kabupaten)
+        link = get_object_or_404(Link, linkId=link_id, kabupaten=logged_in_user.kabupaten)
         
         link_serializer = LinkSerializer(link, data=request.data, partial=True)
         if link_serializer.is_valid():
@@ -99,7 +99,7 @@ def kabupaten_dashboard(request):
 
     elif request.method == 'DELETE':
         link_id = request.data.get('link_id')
-        link = get_object_or_404(Link, id=link_id, kabupaten=logged_in_user.kabupaten)
+        link = get_object_or_404(Link, linkId=link_id, kabupaten=logged_in_user.kabupaten)
         link.delete()
         return Response({'detail': 'Link deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 

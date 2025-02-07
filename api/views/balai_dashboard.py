@@ -28,14 +28,16 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import BasePermission
+from django.contrib.auth.hashers import make_password
 
 #models
-from api.models.balai import Balai
-from api.models.kabupaten import Kabupaten
-from api.models.province import Province
-from api.models.link import Link
-from api.models.user import User, ApprovalRequest
-from api.models.role import Role
+from api.models.Balai import Balai
+from api.models.Kabupaten import Kabupaten
+from api.models.Province import Province
+from api.models.Link import Link
+from api.models.User import User, ApprovalRequest
+from api.models.Role import Role
 #serializers 
 from api.serializers.UserSerializers import UserSerializer
 from api.serializers.PasswordChangeSerializer import PasswordChangeSerializer
@@ -46,8 +48,7 @@ from api.serializers.LoginSerializer import LoginSerializer
 from api.serializers.RoleSerializer import RoleSerializer
 
 
-from rest_framework.permissions import BasePermission
-from django.contrib.auth.hashers import make_password
+
 
 
 
@@ -93,7 +94,7 @@ def balai_dashboard(request):
             password = request.data.get('password')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
-            kabupaten_id = request.data.get('Kabupaten')
+            kabupaten_id = request.data.get('kabupaten')
 
             # Validate required fields
             if not all([username, email, password, province_id, kabupaten_id]):
@@ -105,8 +106,8 @@ def balai_dashboard(request):
 
             # Fetch province and kabupaten objects
             balai = get_object_or_404(Balai, id=balai_id)
-            province = get_object_or_404(Province, id=province_id)
-            kabupaten = get_object_or_404(Kabupaten, id=kabupaten_id)
+            province = get_object_or_404(Province, provinceCode=province_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode =kabupaten_id)
 
             # Create new user with the role of Provincial LG
             province_user = User.objects.create(
@@ -153,7 +154,7 @@ def balai_dashboard(request):
         
         if 'province' in request.data:
             province_id = request.data.get('province')
-            province = get_object_or_404(Province, id=province_id)
+            province = get_object_or_404(Province, provinceCode =province_id)
             user.province = province
         if 'balai' in request.data:
             balai_id = request.data.get('balai')
@@ -161,7 +162,7 @@ def balai_dashboard(request):
             user.balai = balai
         if 'Kabupaten' in request.data:
             kabupaten_id = request.data.get('Kabupaten')
-            kabupaten = get_object_or_404(Kabupaten, id=kabupaten_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
             user.Kabupaten = kabupaten
 
         user.save()
@@ -178,7 +179,7 @@ def balai_dashboard(request):
             user.email = request.data.get('email', user.email)
         if 'province' in request.data:
             province_id = request.data.get('province')
-            province = get_object_or_404(Province, id=province_id)
+            province = get_object_or_404(Province, provinceCode=province_id)
             user.province = province
         if 'balai' in request.data:
             balai_id = request.data.get('balai')
@@ -186,7 +187,7 @@ def balai_dashboard(request):
             user.balai = balai
         if 'Kabupaten' in request.data:
             kabupaten_id = request.data.get('Kabupaten')
-            kabupaten = get_object_or_404(Kabupaten, id=kabupaten_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
             user.Kabupaten = kabupaten
 
         user.save()

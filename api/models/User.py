@@ -1,10 +1,10 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
-from api.models.role import Role
-from api.models.balai import Balai
-from api.models.province import Province
-from api.models.kabupaten import Kabupaten
+from api.models.Role import Role
+from api.models.Balai import Balai
+from api.models.Province import Province
+from api.models.Kabupaten import Kabupaten
 
 
 class CustomUserManager(BaseUserManager):

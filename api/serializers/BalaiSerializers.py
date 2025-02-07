@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models.balai import Balai
+from api.models.Balai import Balai
 
 class BalaiSerializer(serializers.ModelSerializer):
     class Meta:

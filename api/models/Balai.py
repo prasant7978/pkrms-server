@@ -1,5 +1,5 @@
 from django.db import models
-from api.models.province import Province
+from api.models.Province import Province
 
 
 

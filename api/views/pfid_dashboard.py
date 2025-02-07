@@ -34,17 +34,17 @@ from django.http import HttpResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets
-from api.models.province import Province
-from api.models.balai import Balai
-from api.models.kabupaten import Kabupaten
-from api.models.link import Link
+from api.models.Province import Province
+from api.models.Balai import Balai
+from api.models.Kabupaten import Kabupaten
+from api.models.Link import Link
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from api.models.user import User, ApprovalRequest
-from api.models.role import Role
+from api.models.User import User, ApprovalRequest
+from api.models.Role import Role
 from api.serializers.UserSerializers import UserSerializer
 from api.serializers.UserSerializers import ApprovalRequestSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -128,7 +128,7 @@ def pfid_dashboard(request):
         balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
         approved_balai_users = User.objects.filter(role__role_name=Role.BALAI_LG, approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
-
+        
         province_links = Link.objects.filter(province=logged_in_user.province)
         kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
         #retaining_wall_province = Retaining_walls.objects.filter(province=logged_in_user.province)
@@ -144,6 +144,7 @@ def pfid_dashboard(request):
             'approval_requests': approval_request_serializer.data,
             'province_links': list(province_links.values()),
             'kabupaten_links': list(kabupaten_links.values()),
+            #'balai_links': list(balai_links.values()),
             'links': list(links.values()),
             #'retaining_wall_province': list(retaining_wall_province.values())
         })
@@ -158,7 +159,7 @@ def pfid_dashboard(request):
             password = request.data.get('password')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
-            kabupaten_id = request.data.get('Kabupaten')
+            kabupaten_id = request.data.get('kabupaten')
 
             # Validate required fields
             if not all([username, email, password, balai_id, province_id, kabupaten_id]):
@@ -170,8 +171,8 @@ def pfid_dashboard(request):
 
             # Fetch province, kabupaten, and balai objects
             balai = get_object_or_404(Balai, id=balai_id)
-            province = get_object_or_404(Province, id=province_id)
-            kabupaten = get_object_or_404(Kabupaten, id=kabupaten_id)
+            province = get_object_or_404(Province, provinceCode=province_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
 
             # Create new user
             balai_user = User.objects.create(
@@ -214,19 +215,19 @@ def pfid_dashboard(request):
         # You can update user attributes here based on the request data
         user.username = request.data.get('username', user.username)
         user.email = request.data.get('email', user.email)
-        # Update province if provided
+        
         # Update province if provided
         if 'province' in request.data:
             province_id = request.data.get('province')
-            province = get_object_or_404(Province, id=province_id)
+            province = get_object_or_404(Province,  provinceCode=province_id)
             user.province = province
 
         if 'balai' in request.data:
             balai_id = request.data.get('balai')
             balai = get_object_or_404(Balai, id=balai_id)
             user.balai = balai
-        user.province = get_object_or_404(Province, id=request.data.get('province', user.province.id))
-        user.Kabupaten = get_object_or_404(Kabupaten, id=request.data.get('Kabupaten', user.Kabupaten.id))
+        user.province = get_object_or_404(Province, provinceCode=request.data.get('province', user.province.provinceCode))
+        user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten', user.Kabupaten.KabupatenCode))
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -247,9 +248,9 @@ def pfid_dashboard(request):
             balai = get_object_or_404(Balai, id=balai_id)
             user.balai = balai
         if 'province' in request.data:
-            user.province = get_object_or_404(Province, id=request.data['province'])
+            user.province = get_object_or_404(Province, provinceCode=request.data['province'])
         if 'Kabupaten' in request.data:
-            user.Kabupaten = get_object_or_404(Kabupaten, id=request.data['Kabupaten'])
+            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data['Kabupaten'])
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)

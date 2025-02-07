@@ -1,4 +1,6 @@
   # Import the User model so Django recognizes it
-from .province import Province  # Ensure this is imported before Balai
-from .balai import Balai
-from .user import User
+from .Province import Province  # Ensure this is imported before Balai
+from .Balai import Balai
+from .User import User
+from .Link import Link
+from .Kabupaten import Kabupaten

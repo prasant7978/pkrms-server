@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models.province import Province
+from api.models.Province import Province
 
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:

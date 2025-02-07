@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from api.serializers.RoleSerializer import RoleSerializer
-from api.models.user import User ,ApprovalRequest
-from api.models.province import Province
-from api.models.balai import Balai
-from api.models.role import Role
+from api.models.User import User ,ApprovalRequest
+from api.models.Province import Province
+from api.models.Balai import Balai
+from api.models.Role import Role
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(read_only=True)
     province = serializers.StringRelatedField()  # If you want just the name, use `StringRelatedField()`

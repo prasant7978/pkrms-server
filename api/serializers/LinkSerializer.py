@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models.link import Link
+from api.models.Link import Link
 
 class LinkSerializer(serializers.ModelSerializer):
     province_code = serializers.CharField(source="province.code", read_only=True)
