@@ -5,6 +5,7 @@ from api.models.Balai import Balai
 from api.models.Kabupaten import Kabupaten
 from api.models.Link import Link
 from api.models.Role import Role
+from api.models.roadCondition import RoadCondition
 # Register your models here.
 admin.site.register(User)
 admin.site.register(ApprovalRequest)
@@ -13,3 +14,4 @@ admin.site.register(Balai)
 admin.site.register(Kabupaten)
 admin.site.register(Link)
 admin.site.register(Role)
+admin.site.register(RoadCondition)

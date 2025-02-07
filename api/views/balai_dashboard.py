@@ -48,46 +48,29 @@ from api.serializers.LoginSerializer import LoginSerializer
 from api.serializers.RoleSerializer import RoleSerializer
 
 
-
-
-
-
-
-
-
-# API for balai_dashboard
-@api_view(['GET', 'POST', 'PUT'])
+@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])  
 def balai_dashboard(request):
     logged_in_user = request.user
 
     # GET method
     if request.method == 'GET':
-        # Fetching users and approval requests
-        province_users_pending_approval = User.objects.filter(
-            role__role_name=Role.PROVINCIAL_LG, 
-            approved=False
-        )
-        approved_users = User.objects.filter(role__role_name=Role.PROVINCIAL_LG, approved=True)
+        province_users_pending_approval = User.objects.filter(role__id=3, approved=False)
+        kabupaten_users_pending_approval = User.objects.filter(role__id=4, approved=False)
+        approved_users = User.objects.filter(role__id__in=[3, 4], approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
-
-        # Fetching links for province and kabupaten
-        province_links = Link.objects.filter(province=logged_in_user.province)
-        kabupaten_links = Link.objects.filter(kabupaten=logged_in_user.Kabupaten)
 
         return Response({
             "approved_users": list(approved_users.values()),
             "province_users_pending_approval": list(province_users_pending_approval.values()),
+            "kabupaten_users_pending_approval": list(kabupaten_users_pending_approval.values()),
             "approval_requests": list(approval_requests.values()),
-            'province_links': list(province_links.values()),
-            'kabupaten_links': list(kabupaten_links.values())
         })
 
-    # POST method - Handle registration and approval/rejection actions
+    # POST method - Register Province LG & Kabupaten LG users
     elif request.method == 'POST':
         action = request.data.get('action')
 
-        # Registration for Province LG user
         if action == 'register':
             username = request.data.get('username')
             email = request.data.get('email')
@@ -95,38 +78,40 @@ def balai_dashboard(request):
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
             kabupaten_id = request.data.get('kabupaten')
+            role_id = request.data.get('role_id')  # Role ID instead of role name
 
-            # Validate required fields
-            if not all([username, email, password, province_id, kabupaten_id]):
+            # Ensure only allowed roles are used (3 = Province LG, 4 = Kabupaten LG)
+            if role_id not in [3, 4]:
+                return Response({'detail': 'Invalid role_id. Only 3 (Province LG) and 4 (Kabupaten LG) are allowed.'}, status=400)
+
+            if not all([username, email, password, province_id, kabupaten_id, role_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
 
-            # Check if user already exists
             if User.objects.filter(email=email).exists():
                 return Response({'detail': 'User with this email already exists'}, status=400)
 
-            # Fetch province and kabupaten objects
             balai = get_object_or_404(Balai, id=balai_id)
             province = get_object_or_404(Province, provinceCode=province_id)
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode =kabupaten_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
+            role = get_object_or_404(Role, id=role_id)  # Fetch role by ID
 
-            # Create new user with the role of Provincial LG
-            province_user = User.objects.create(
+            # Create new user
+            new_user = User.objects.create(
                 username=username,
                 email=email,
                 password=make_password(password),
-                role=Role.objects.get(role_name=Role.PROVINCIAL_LG),
+                role=role,
                 balai=balai,
                 province=province,
                 Kabupaten=kabupaten,
-                approved=False  # Requires Balai LG approval
+                approved=False  # Requires approval
             )
 
-            # Create approval request for the new user
-            ApprovalRequest.objects.create(user=province_user, approver=logged_in_user, status='Pending')
+            # Create approval request
+            ApprovalRequest.objects.create(user=new_user, approver=logged_in_user, status='Pending')
 
-            return Response({'detail': 'Registration completed. Awaiting Balai LG approval.'}, status=201)
+            return Response({'detail': f'{role.role_name} registration completed. Awaiting approval.'}, status=201)
 
-        # Approval or rejection of Provincial LG users
         elif action in ['approve', 'reject']:
             user_id = request.data.get('user_id')
             user = get_object_or_404(User, id=user_id)
@@ -134,12 +119,12 @@ def balai_dashboard(request):
             if action == 'approve':
                 user.approved = True
                 user.save()
-                return Response({'detail': f'Province LG User {user.email} has been approved.'}, status=200)
+                return Response({'detail': f'User {user.email} has been approved.'}, status=200)
             elif action == 'reject':
                 user.approved = False
                 user.is_active = False
                 user.save()
-                return Response({'detail': f'Province LG User {user.email} has been rejected.'}, status=200)
+                return Response({'detail': f'User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid action'}, status=400)
 
@@ -148,52 +133,42 @@ def balai_dashboard(request):
         user_id = request.data.get('user_id')
         user = get_object_or_404(User, id=user_id)
 
-        # You can update user attributes here based on the request data
         user.username = request.data.get('username', user.username)
         user.email = request.data.get('email', user.email)
-        
+
         if 'province' in request.data:
-            province_id = request.data.get('province')
-            province = get_object_or_404(Province, provinceCode =province_id)
+            province = get_object_or_404(Province, provinceCode=request.data.get('province'))
             user.province = province
         if 'balai' in request.data:
-            balai_id = request.data.get('balai')
-            balai = get_object_or_404(Balai, id=balai_id)
+            balai = get_object_or_404(Balai, id=request.data.get('balai'))
             user.balai = balai
         if 'Kabupaten' in request.data:
-            kabupaten_id = request.data.get('Kabupaten')
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
+            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten'))
             user.Kabupaten = kabupaten
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
-     # PATCH method: Partial update of Provincial LG user details (password not updated)
+
+    # PATCH method - Partial update
     elif request.method == 'PATCH':
         user_id = request.data.get('user_id')
         user = get_object_or_404(User, id=user_id)
 
-        # Update only the fields provided in the request
         if 'username' in request.data:
-            user.username = request.data.get('username', user.username)
+            user.username = request.data.get('username')
         if 'email' in request.data:
-            user.email = request.data.get('email', user.email)
+            user.email = request.data.get('email')
         if 'province' in request.data:
-            province_id = request.data.get('province')
-            province = get_object_or_404(Province, provinceCode=province_id)
-            user.province = province
+            user.province = get_object_or_404(Province, provinceCode=request.data.get('province'))
         if 'balai' in request.data:
-            balai_id = request.data.get('balai')
-            balai = get_object_or_404(Balai, id=balai_id)
-            user.balai = balai
+            user.balai = get_object_or_404(Balai, id=request.data.get('balai'))
         if 'Kabupaten' in request.data:
-            kabupaten_id = request.data.get('Kabupaten')
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
-            user.Kabupaten = kabupaten
+            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten'))
 
         user.save()
         return Response({'detail': 'User partially updated successfully.'}, status=200)
 
-    # DELETE method: Delete a Provincial LG user
+    # DELETE method - Delete user
     elif request.method == 'DELETE':
         user_id = request.data.get('user_id')
         if not user_id:
@@ -203,4 +178,10 @@ def balai_dashboard(request):
         return Response({'detail': 'User deleted successfully.'}, status=204)
 
     return Response({'detail': 'Invalid HTTP method'}, status=405)
-    
+
+
+
+
+
+
+
