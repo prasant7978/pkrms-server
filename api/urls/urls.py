@@ -5,7 +5,8 @@ from api.views.pfid_dashboard import pfid_dashboard,superadmin_dashboard
 from api.views.change_password import change_password
 from api.views.balai_dashboard import balai_dashboard
 from api.views.province_dashboard import province_dashboard
-from api.views.kabupaten_dashboard import kabupaten_dashboard
+from api.views.kabupatenLink import kabupatenLink
+from api.views.provinceLink import provinceLinks
 from django.urls import path, include
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -23,7 +24,8 @@ urlpatterns = [
     path('api/pfid_dashboard/',pfid_dashboard, name= "pfid_dashboard_api"),
     path('api/balai_dashboard/',balai_dashboard, name='balai_dashboard_api'),
     path('api/province/',province_dashboard, name='province_dashboard'),
-    path('api/kabupaten/',kabupaten_dashboard, name='kabupaten_dashboard'),
+    path('api/provinceLinks/',provinceLinks, name="province_links"),
+    path('api/kabupatenLink/',kabupatenLink, name='kabupaten_links'),
     path('api/superadmin/',superadmin_dashboard, name='superadmin_dashboard'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
