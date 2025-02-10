@@ -55,9 +55,9 @@ def balai_dashboard(request):
 
     # GET method
     if request.method == 'GET':
-        province_users_pending_approval = User.objects.filter(role__id=3, approved=False)
-        kabupaten_users_pending_approval = User.objects.filter(role__id=4, approved=False)
-        approved_users = User.objects.filter(role__id__in=[3, 4], approved=True)
+        province_users_pending_approval = User.objects.filter(role__id=5, approved=False)
+        kabupaten_users_pending_approval = User.objects.filter(role__id=6, approved=False)
+        approved_users = User.objects.filter(role__id__in=[5, 6], approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
 
         return Response({
@@ -80,9 +80,9 @@ def balai_dashboard(request):
             kabupaten_id = request.data.get('kabupaten')
             role_id = request.data.get('role_id')  # Role ID instead of role name
 
-            # Ensure only allowed roles are used (3 = Province LG, 4 = Kabupaten LG)
-            if role_id not in [3, 4]:
-                return Response({'detail': 'Invalid role_id. Only 3 (Province LG) and 4 (Kabupaten LG) are allowed.'}, status=400)
+            # Ensure only allowed roles are used (5 = Province LG, 6 = Kabupaten LG)
+            if role_id not in [5, 6]:
+                return Response({'detail': 'Invalid role_id. Only 5 (Province LG) and 6 (Kabupaten LG) are allowed.'}, status=400)
 
             if not all([username, email, password, province_id, kabupaten_id, role_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
