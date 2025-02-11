@@ -10,7 +10,7 @@ from api.views.provinceLink import provinceLinks
 from django.urls import path, include
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenRefreshView
-from api.views.roadInventory import roadInventory_province
+from api.views.roadInventory import roadInventory
 
 
 urlpatterns = [
@@ -30,6 +30,6 @@ urlpatterns = [
     path('api/kabupatenLink/',kabupatenLink, name='kabupaten_links'),
     path('api/superadmin/',superadmin_dashboard, name='superadmin_dashboard'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('road-inventory/',roadInventory_province, name='road_inventory_list_create'),
+    path('api/road_inventory/',roadInventory, name='road_inventory_list_create'),
     
 ]

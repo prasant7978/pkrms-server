@@ -139,8 +139,9 @@ def pfid_dashboard(request):
         user_serializer = UserSerializer(balai_users_pending_approval, many=True)
         approved_user_serializer = UserSerializer(approved_balai_users, many=True)
         approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
-
+        logged_in_user_serializer = UserSerializer(logged_in_user)
         return Response({
+            'logged_in_user': logged_in_user_serializer.data,
             'balai_users_pending_approval': user_serializer.data,
             'approved_balai_users': approved_user_serializer.data,
             'approval_requests': approval_request_serializer.data,

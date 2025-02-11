@@ -26,6 +26,6 @@ class Role(models.Model):
         verbose_name="Role",
         unique=True,
     )
-
+    
     def __str__(self):
         return self.role_name
