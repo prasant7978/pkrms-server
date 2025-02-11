@@ -1,10 +1,10 @@
 from django.db import models 
 
 class ShoulderCondition(models.Model):
-    code = models.CharField()
-    codeDescriptionEng = models.CharField(max_length=50)
-    codeDescriptionInd = models.CharField(max_length=50)
-    order = models.IntegerField()
+    code = models.CharField(null=True, blank=True)
+    codeDescriptionEng = models.CharField(max_length=50,null=True, blank=True)
+    codeDescriptionInd = models.CharField(max_length=50,null=True, blank=True)
+    order = models.IntegerField(null=True, blank=True)
     
     class Meta:
         db_table = 'ShoulderCondition'
