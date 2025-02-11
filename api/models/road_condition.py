@@ -1,0 +1,81 @@
+from django.db import models
+from api.models.Link import Link
+from api.models.SysCode import drainCondition, footpathCondition, shoulderCondition, slopeCondition
+
+class RoadCondition(models.Model):
+    roadConditionId = models.CharField(primary_key=True,null=False) # linkNo-ChaingeFrom-Year
+    analysisBaseYear = models.BooleanField(default=False,null=True)
+    barrierL = models.IntegerField(null=True, blank=True)
+    barrierR = models.IntegerField(null=True, blank=True)
+    bleedingArea = models.FloatField(null=True, blank=True)
+    chainageFrom = models.IntegerField(null=False, blank=False)
+    chainageTo = models.IntegerField(null=False, blank=False)
+    checkData = models.BooleanField
+    composition = models.FloatField(null=True, blank=True)
+    concreteBlowoutsArea = models.FloatField(null=True, blank=True)
+    concreteCornerBreakNo = models.IntegerField(null=True, blank=True)
+    concreteCrackingArea = models.CharField(max_length=50, null=True, blank=True)
+    concretePumpingNo = models.IntegerField(null=True, blank=True)
+    concreteSpallingArea = models.CharField(max_length=50, null=True, blank=True)
+    concreteStructuralCrackingArea = models.CharField(max_length=50, null=True, blank=True)
+    crackDepArea = models.FloatField(null=True, blank=True)
+    crackType = models.FloatField(null=True, blank=True)
+    crackWidth = models.IntegerField(null=True, blank=True)
+    crossfallArea = models.FloatField(null=True, blank=True)
+    crossfallShape = models.CharField(max_length=50, null=True, blank=True)
+    desintegrationArea = models.FloatField(null=True, blank=True)
+    distribution = models.CharField(max_length=50, null=True, blank=True)
+    drainL = models.ForeignKey(drainCondition, on_delete=models.CASCADE)
+    drainR = models.ForeignKey(drainCondition, on_delete=models.CASCADE)
+    drpFrom = models.IntegerField(null=True, blank=True)
+    drpTo = models.IntegerField(null=True, blank=True)
+    edgeDamageArea = models.FloatField(null=True, blank=True)
+    edgeDamageAreaR = models.FloatField(null=True, blank=True)
+    erosionArea = models.FloatField(null=True, blank=True)
+    footpathL = models.ForeignKey(footpathCondition, on_delete=models.CASCADE)
+    footpathR = models.ForeignKey(footpathCondition, on_delete=models.CASCADE)
+    gravelSize = models.CharField(max_length=50, null=True, blank=True)
+    gravelThickness = models.CharField(max_length=50, null=True, blank=True)
+    gravelThicknessArea = models.FloatField
+    guidepostL = models.IntegerField(null=True, blank=True)
+    guidepostR = models.IntegerField(null=True, blank=True)
+    iri = models.CharField(max_length=50, null=True, blank=True)
+    offsetFrom = models.IntegerField(null=True, blank=True)
+    offsetTo = models.IntegerField(null=True, blank=True)
+    othCrackArea = models.FloatField(null=True, blank=True)
+    paved = models.BooleanField(null=True, blank=True)
+    pavement = models.CharField(null=True, blank=True)
+    patchingArea = models.FloatField(null=True, blank=True)
+    potholeArea = models.FloatField(null=True, blank=True)
+    potholeCount = models.IntegerField(null=True, blank=True)
+    potholeSize = models.FloatField(null=True, blank=True)
+    rci = models.CharField(max_length=50, null=True, blank=True)
+    ravellingArea = models.FloatField(null=True, blank=True)
+    roadMarkingL = models.IntegerField(null=True, blank=True, default=False)
+    roadMarkingR = models.IntegerField(null=True, blank=True, default=False)
+    roughness = models.BooleanField(null=True, blank=True, default=False)
+    ruttingArea = models.FloatField(null=True, blank=True)
+    ruttingDepth = models.IntegerField(null=True, blank=True)
+    sectionStatus = models.FloatField(null=True, blank=True)
+    segmentTti = models.CharField(max_length=50, null=True, blank=True)
+    shoulderL = models.ForeignKey(shoulderCondition, on_delete=models.CASCADE)
+    shoulderR = models.ForeignKey(shoulderCondition,on_delete=models.CASCADE)
+    shouldCondL = models.IntegerField(null=True, blank=True)
+    shouldCondR = models.IntegerField(null=True, blank=True)
+    signL = models.IntegerField(null=True, blank=True)
+    signR = models.IntegerField(null=True, blank=True)
+    slopeL = models.ForeignKey(slopeCondition, on_delete=models.CASCADE)
+    slopeR = models.ForeignKey(slopeCondition, on_delete=models.CASCADE)
+    surveyBy = models.CharField(max_length=50, null=True, blank=True)
+    surveyBy2 = models.CharField(max_length=50, null=True, blank=True)
+    surveyDate = models.DateTimeField()
+    wavinessArea = models.FloatField(null=True, blank=True)
+    year = models.IntegerField(null=False, blank=False)
+    
+    linkId = models.ForeignKey(Link, on_delete=models.CASCADE)
+    # provinceCode = models.IntegerField(null=True, blank=True)  # exclude province
+    # kabupatenCode = models.IntegerField(null=True, blank=True)  # exclude kabupaten
+
+
+    class Meta:
+        db_table = 'RoadCondition'
