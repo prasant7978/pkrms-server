@@ -19,11 +19,10 @@ from rest_framework.permissions import BasePermission
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from Crypto.Cipher import AES
+import base64
 
-
-
-
-
+from api.views.decryption import decrypt_password
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -36,16 +35,24 @@ def api_login(request):
 
     if serializer.is_valid():
         email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
+        encrypted_password = serializer.validated_data['password']
 
-        user = authenticate(request, email=email, password=password)
+        try:
+            # Decrypt the password
+            decrypted_password = decrypt_password(encrypted_password)
+            print('decry', decrypted_password)  # This will display the actual decrypted password
+
+        except ValueError:
+            return Response({'detail': 'Invalid password encryption.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Authenticate user with decrypted password
+        user = authenticate(request, email=email, password=decrypted_password)
 
         if user is not None:
             # Check if user is active
             if not user.is_active:
                 return Response({'detail': 'Your account is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            
             # Specific checks for user roles
             if user.role.role_name == Role.PROVINCIAL_LG:
                 if not user.approved:
@@ -69,8 +76,6 @@ def api_login(request):
                     return Response({
                         'detail': 'Your account is pending approval from a Super Admin.'
                     }, status=status.HTTP_400_BAD_REQUEST)
-
-                
 
             # General approval check
             if not user.approved and not user.is_superuser:
