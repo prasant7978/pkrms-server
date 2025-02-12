@@ -53,7 +53,7 @@ def api_login(request):
                         'detail': 'Your account is pending approval from a Balai LG user.'
                     }, status=status.HTTP_400_BAD_REQUEST)
             
-            elif user.role.role_name == Role.BALAI_LG:
+            elif user.role.role_name == Role.BALAI:
                 if not user.approved:
                     return Response({
                         'detail': 'Your account is pending approval from a higher-level admin.'
