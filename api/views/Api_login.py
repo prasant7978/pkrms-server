@@ -32,6 +32,7 @@ def api_login(request):
     API Login endpoint to authenticate a user and return a JWT token.
     """
     serializer = LoginSerializer(data=request.data)
+    print("req: ", request.data)
 
     if serializer.is_valid():
         email = serializer.validated_data['email']

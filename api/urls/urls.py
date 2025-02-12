@@ -19,6 +19,8 @@ urlpatterns = [
     
     path('login',api_login, name='api-login'),
     path('change-password',change_password, name='change-password'),
+    path('login',api_login, name='api-login'),
+    path('change-password',change_password, name='change-password'),
 
     #hierarchy from pfid to kabupaten level 
     path('spdjd_dashboard',SPDJD_dashboard, name= "spdjd_dashboard_api" ),
@@ -31,6 +33,5 @@ urlpatterns = [
     path('superadmin',superadmin_dashboard, name='superadmin_dashboard'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('road_inventory',roadInventory, name='road_inventory_list_create'),
-    
     
 ]
