@@ -86,9 +86,11 @@ def superadmin_dashboard(request):
         user_serializer = UserSerializer(pfid_users_pending_approval, many=True)
         approved_user_serializer = UserSerializer(approved_pfid_users, many=True)
         approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
+        logged_in_user_serializer = UserSerializer(logged_in_user) 
 
         # Adding all links to the response data
         return Response({
+            'logged_in_user': logged_in_user_serializer.data,
             'pfid_users_pending_approval': user_serializer.data,
             'approved_pfid_users': approved_user_serializer.data,
             'approval_requests': approval_request_serializer.data,
@@ -127,8 +129,8 @@ def pfid_dashboard(request):
         return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
     # GET method - Fetches data
     if request.method == 'GET':
-        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
-        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI_LG, approved=True)
+        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI, approved=False)
+        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI, approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
         
         province_links = Link.objects.filter(province=logged_in_user.province)
@@ -182,7 +184,7 @@ def pfid_dashboard(request):
                 username=username,
                 email=email,
                 password=make_password(password),
-                role=Role.objects.get(role_name=Role.BALAI_LG),
+                role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
                 Kabupaten=kabupaten,
@@ -201,12 +203,12 @@ def pfid_dashboard(request):
             if action == 'approve':
                 user.approved = True
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been approved.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been approved.'}, status=200)
             else:
                 user.approved = False
                 user.is_active = False
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been rejected.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid action'}, status=400)
 
@@ -285,8 +287,8 @@ def DPSI_dashboard(request):
         return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
     # GET method - Fetches data
     if request.method == 'GET':
-        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
-        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI_LG, approved=True)
+        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI, approved=False)
+        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI, approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
         
         province_links = Link.objects.filter(province=logged_in_user.province)
@@ -297,8 +299,9 @@ def DPSI_dashboard(request):
         user_serializer = UserSerializer(balai_users_pending_approval, many=True)
         approved_user_serializer = UserSerializer(approved_balai_users, many=True)
         approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
-
+        logged_in_user_serializer = UserSerializer(logged_in_user)
         return Response({
+            'logged_in_user': logged_in_user_serializer.data,
             'balai_users_pending_approval': user_serializer.data,
             'approved_balai_users': approved_user_serializer.data,
             'approval_requests': approval_request_serializer.data,
@@ -339,7 +342,7 @@ def DPSI_dashboard(request):
                 username=username,
                 email=email,
                 password=make_password(password),
-                role=Role.objects.get(role_name=Role.BALAI_LG),
+                role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
                 Kabupaten=kabupaten,
@@ -358,12 +361,12 @@ def DPSI_dashboard(request):
             if action == 'approve':
                 user.approved = True
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been approved.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been approved.'}, status=200)
             else:
                 user.approved = False
                 user.is_active = False
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been rejected.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid action'}, status=400)
 
@@ -439,8 +442,8 @@ def SPDJD_dashboard(request):
         return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
     # GET method - Fetches data
     if request.method == 'GET':
-        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI_LG, approved=False)
-        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI_LG, approved=True)
+        balai_users_pending_approval = User.objects.filter(role__role_name=Role.BALAI, approved=False)
+        approved_balai_users = User.objects.filter(role__role_name=Role.BALAI, approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
         
         province_links = Link.objects.filter(province=logged_in_user.province)
@@ -451,8 +454,9 @@ def SPDJD_dashboard(request):
         user_serializer = UserSerializer(balai_users_pending_approval, many=True)
         approved_user_serializer = UserSerializer(approved_balai_users, many=True)
         approval_request_serializer = ApprovalRequestSerializer(approval_requests, many=True)
-
+        logged_in_user_serializer = UserSerializer(logged_in_user)
         return Response({
+            'logged_in_user': logged_in_user_serializer.data,
             'balai_users_pending_approval': user_serializer.data,
             'approved_balai_users': approved_user_serializer.data,
             'approval_requests': approval_request_serializer.data,
@@ -493,7 +497,7 @@ def SPDJD_dashboard(request):
                 username=username,
                 email=email,
                 password=make_password(password),
-                role=Role.objects.get(role_name=Role.BALAI_LG),
+                role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
                 Kabupaten=kabupaten,
@@ -512,12 +516,12 @@ def SPDJD_dashboard(request):
             if action == 'approve':
                 user.approved = True
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been approved.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been approved.'}, status=200)
             else:
                 user.approved = False
                 user.is_active = False
                 user.save()
-                return Response({'detail': f'Balai LG User {user.email} has been rejected.'}, status=200)
+                return Response({'detail': f'Balai  User {user.email} has been rejected.'}, status=200)
 
         return Response({'detail': 'Invalid action'}, status=400)
 

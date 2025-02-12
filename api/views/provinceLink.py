@@ -9,7 +9,7 @@ from api.models.Role import Role
 from api.models.Province import Province
 from api.serializers.LinkSerializer import LinkSerializer
 from api.models.Kabupaten import Kabupaten
-
+from api.serializers.UserSerializers import UserSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
@@ -40,7 +40,8 @@ def provinceLinks(request, link_id=None):
         roles = Role.objects.all().values('id', 'role_name')
         print(roles)
         province_links = Link.objects.filter(province=logged_in_user.province)
-        return Response({'province_links': list(province_links.values())}, status=status.HTTP_200_OK)
+        logged_in_user_serializer = UserSerializer(logged_in_user)
+        return Response({'province_links': list(province_links.values()), 'logged_in_user': logged_in_user_serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         # Ensure the user is only adding links for their assigned province
@@ -81,21 +82,25 @@ def provinceLinks(request, link_id=None):
         return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method in ['PUT', 'PATCH']:
+        link_id = request.data.get('linkId')  # Extract linkId from request body
+        print("Received link_id:", link_id)  # Debugging
         if not link_id:
-            return Response({"detail": "Link ID is required for updating."}, status=status.HTTP_400_BAD_REQUEST)
+          return Response({"detail": "Link ID is required for updating."}, status=status.HTTP_400_BAD_REQUEST)
 
         link = get_object_or_404(Link, linkId=link_id, province=logged_in_user.province)
         link_serializer = LinkSerializer(link, data=request.data, partial=(request.method == 'PATCH'))
         if link_serializer.is_valid():
-            link_serializer.save()
-            return Response(link_serializer.data, status=status.HTTP_200_OK)
+           link_serializer.save()
+           return Response(link_serializer.data, status=status.HTTP_200_OK)
         return Response(link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     elif request.method == 'DELETE':
+        link_id = request.data.get('linkId')  # Extract linkId from request body
+        print("Received link_id:", link_id)  # Debugging
+
         if not link_id:
-            return Response({"detail": "Link ID is required for deletion."}, status=status.HTTP_400_BAD_REQUEST)
+           return Response({"detail": "Link ID is required for deletion."}, status=status.HTTP_400_BAD_REQUEST)
 
         link = get_object_or_404(Link, linkId=link_id, province=logged_in_user.province)
         link.delete()
-        return Response({'detail': 'Link deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
+        return Response({'detail': 'Link deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
