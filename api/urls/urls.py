@@ -17,19 +17,20 @@ urlpatterns = [
    
     #user login api's url 
     
-    path('api/login/',api_login, name='api-login'),
-    path('api/change-password/',change_password, name='change-password'),
+    path('login',api_login, name='api-login'),
+    path('change-password',change_password, name='change-password'),
 
     #hierarchy from pfid to kabupaten level 
-    path('api/spdjd_dashboard/',SPDJD_dashboard, name= "spdjd_dashboard_api" ),
-    path('api/dpsi_dashboard/',DPSI_dashboard, name= "dpsi_dashboard_api" ),
-    path('api/pfid_dashboard/',pfid_dashboard, name= "pfid_dashboard_api"),
-    path('api/balai_dashboard/',balai_dashboard, name='balai_dashboard_api'),
-    path('api/province/',province_dashboard, name='province_dashboard'),
-    path('api/provinceLinks/',provinceLinks, name="province_links"),
-    path('api/kabupatenLink/',kabupatenLink, name='kabupaten_links'),
-    path('api/superadmin/',superadmin_dashboard, name='superadmin_dashboard'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/road_inventory/',roadInventory, name='road_inventory_list_create'),
+    path('spdjd_dashboard',SPDJD_dashboard, name= "spdjd_dashboard_api" ),
+    path('dpsi_dashboard',DPSI_dashboard, name= "dpsi_dashboard_api" ),
+    path('pfid_dashboard',pfid_dashboard, name= "pfid_dashboard_api"),
+    path('balai_dashboard',balai_dashboard, name='balai_dashboard_api'),
+    path('province',province_dashboard, name='province_dashboard'),
+    path('provinceLinks',provinceLinks, name="province_links"),
+    path('kabupatenLink',kabupatenLink, name='kabupaten_links'),
+    path('superadmin',superadmin_dashboard, name='superadmin_dashboard'),
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('road_inventory',roadInventory, name='road_inventory_list_create'),
+    
     
 ]

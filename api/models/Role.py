@@ -1,20 +1,20 @@
 from django.db import models
 
 class Role(models.Model):
-    SUPERADMIN = 'superadmin'
+    
     PFID = 'pfid'
     DPSI = 'dpsi'
     SPDJD = "spdjd"
-    BALAI_LG = 'balai_lg'
+    BALAI = 'balai'
     PROVINCIAL_LG = 'provience_lg'
     KABUPATEN_LG = 'kabupaten_lg'
 
     ROLE_CHOICES = [
-        (SUPERADMIN, 'Super Admin'),
+        
         (PFID, 'PFID'),
         (DPSI, 'DPSI'),
         (SPDJD, 'SPDJD'),
-        (BALAI_LG, 'Balai LG'),
+        (BALAI, 'Balai '),
         (PROVINCIAL_LG, 'Provincial LG'),
         (KABUPATEN_LG, 'Kabupaten LG'),
     ]

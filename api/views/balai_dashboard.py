@@ -60,8 +60,10 @@ def balai_dashboard(request):
         kabupaten_users_pending_approval = User.objects.filter(role__role_name=Role.KABUPATEN_LG, approved=False)
         approved_users = User.objects.filter(role__role_name__in=[Role.PROVINCIAL_LG, Role.KABUPATEN_LG], approved=True)
         approval_requests = ApprovalRequest.objects.filter(status='Pending', approver=logged_in_user)
-
+        logged_in_user_serializer = UserSerializer(logged_in_user)
         return Response({
+            
+            'logged_in_user': logged_in_user_serializer.data,
             "approved_users": list(approved_users.values()),
             "province_users_pending_approval": list(province_users_pending_approval.values()),
             "kabupaten_users_pending_approval": list(kabupaten_users_pending_approval.values()),
