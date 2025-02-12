@@ -12,7 +12,7 @@ from api.models.SysCode.terrain import Terrain
 class RoadInventory(models.Model):
     roadInventoryId = models.CharField(primary_key=True, null=False)
     linkId = models.ForeignKey(Link, on_delete=models.CASCADE, related_name='road_inventory')
-    linkNo = models.BigIntegerField(null=True, blank=True)
+    linkNo = models.CharField(null=True, blank=True)
     chainageFrom = models.IntegerField(null=True, blank=True)
     chainageTo = models.IntegerField(null=True, blank=True)
     drpFrom = models.IntegerField(null=True, blank=True)
@@ -20,7 +20,7 @@ class RoadInventory(models.Model):
     drpTo = models.IntegerField(null=True, blank=True)
     offsetTo = models.IntegerField(null=True, blank=True)
     paveWidth = models.FloatField(null=True, blank=True)
-    row = models.IntegerField(null=True, blank=True)
+    row = models.FloatField(null=True, blank=True)
     paveType = models.IntegerField(null=True, blank=True)  
     shoulderWidthL = models.FloatField(null=True, blank=True)
     shoulderWidthR = models.FloatField(null=True, blank=True)
