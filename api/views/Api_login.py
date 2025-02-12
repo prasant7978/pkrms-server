@@ -52,7 +52,7 @@ def api_login(request):
                         'detail': 'Your account is pending approval from a Balai LG user.'
                     }, status=status.HTTP_400_BAD_REQUEST)
             
-            elif user.role.role_name == Role.BALAI_LG:
+            elif user.role.role_name == Role.BALAI:
                 if not user.approved:
                     return Response({
                         'detail': 'Your account is pending approval from a higher-level admin.'
@@ -82,11 +82,15 @@ def api_login(request):
 
             response_data = {
                 'refresh_token': str(refresh),
-
                 'access_token': str(access_token),
-                'user_id': user.id,
-                'email': user.email,
-                'role': user.role.role_name if user.role else None,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'role': user.role.role_name if user.role else None,
+                    'contact_person': user.contact_person,  # Assuming this field exists
+                    'phone_number': user.phoneNumber,  # Assuming this field exists
+                },
                 'message': f'User {user.email} logged in successfully.'
             }
 

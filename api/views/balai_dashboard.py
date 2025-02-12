@@ -182,6 +182,10 @@ def balai_dashboard(request):
 
     return Response({'detail': 'Invalid HTTP method'}, status=405)
 
+
+
+
+
 '''@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])  
 def balai_dashboard(request):
