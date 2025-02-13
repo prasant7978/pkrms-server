@@ -9,17 +9,13 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework import status 
 from rest_framework.views import APIView
-from django.http import HttpResponse
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
-
-
-from django.shortcuts import get_object_or_404
-
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -162,12 +158,13 @@ def pfid_dashboard(request):
             username = request.data.get('username')
             email = request.data.get('email')
             password = request.data.get('password')
+            phone_number = request.data.get('phone_number')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
             kabupaten_id = request.data.get('kabupaten')
 
             # Validate required fields
-            if not all([username, email, password, balai_id, province_id, kabupaten_id]):
+            if not all([username, email, password, balai_id,phone_number, province_id, kabupaten_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
 
             # Check if user already exists
@@ -184,6 +181,7 @@ def pfid_dashboard(request):
                 username=username,
                 email=email,
                 password=make_password(password),
+                phone_number=phone_number,
                 role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
@@ -220,7 +218,7 @@ def pfid_dashboard(request):
         # You can update user attributes here based on the request data
         user.username = request.data.get('username', user.username)
         user.email = request.data.get('email', user.email)
-        
+        user.phone_number = request.data.get('phone_number', user.phone_number)
         # Update province if provided
         if 'province' in request.data:
             province_id = request.data.get('province')
@@ -247,6 +245,9 @@ def pfid_dashboard(request):
             user.username = request.data['username']
         if 'email' in request.data:
             user.email = request.data['email']
+
+        if 'phone_number' in request.data:
+            user.phone_number = request.data['phone_number']
 
         if 'balai' in request.data:
             balai_id = request.data['balai']
