@@ -19,10 +19,16 @@ from rest_framework.permissions import BasePermission
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from Crypto.Cipher import AES
+import base64
+
+from api.views.decryption import decrypt_password
 from api.models.Province import Province
 from api.models.Kabupaten import Kabupaten
 from api.models.Balai import Balai
 from django.contrib.auth import get_user_model
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -40,9 +46,16 @@ def api_login(request):
         if not User.objects.filter(email=email).exists():
             return Response({'success': False, 'detail': 'Email does not exist.'}, status=status.HTTP_400_BAD_REQUEST)'''
 
-        # Authenticate user
-        user = authenticate(request, email=email, password=password)
-        user = authenticate(request, email=email, password=password)
+        try:
+            # Decrypt the password
+            decrypted_password = decrypt_password(password)
+            print('decry', decrypted_password)  # This will display the actual decrypted password
+
+        except ValueError:
+            return Response({'detail': 'Invalid password encryption.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Authenticate user with decrypted password
+        user = authenticate(request, email=email, password=decrypted_password)
 
         if user is not None:
             # Check if user is active

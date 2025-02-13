@@ -29,16 +29,28 @@ class RoadCondition(models.Model):
     crossfallShape = models.CharField(max_length=50, null=True, blank=True)
     desintegrationArea = models.FloatField(null=True, blank=True)
     distribution = models.CharField(max_length=50, null=True, blank=True)
+    drpFrom = models.CharField(max_length=50, null=True, blank=True)
+    drpTo = models.CharField(max_length=50, null=True, blank=True)
+    
+    edgeDamageArea = models.FloatField(null=True, blank=True)  # Floating-point field for areas
+    depressionsArea = models.FloatField(null=True, blank=True)  # Floating-point field for areas
+    erosionArea = models.FloatField(null=True, blank=True)  # Floating-point field for areas
+    
+    shoulderCondL = models.CharField(max_length=50, null=True, blank=True)
+    shoulderCondR = models.CharField(max_length=50, null=True, blank=True)
+
+    edgeDamageAreaR = models.FloatField(null=True, blank=True)  # Floating-point field for areas
+
     
     # Fixed ForeignKey fields with related_name
-    drainL = models.ForeignKey('DrainCondition', on_delete=models.CASCADE, null=True, blank=True, related_name='road_condition_left')
-    drainR = models.ForeignKey('DrainCondition', on_delete=models.CASCADE, null=True, blank=True, related_name='road_condition_right')
-    footpathL = models.ForeignKey('FootPathCondition', on_delete=models.CASCADE, related_name='road_condition_footpath_left')
-    footpathR = models.ForeignKey('FootPathCondition', on_delete=models.CASCADE, related_name='road_condition_footpath_right')
-    shoulderL = models.ForeignKey('ShoulderCondition', on_delete=models.CASCADE, related_name='road_condition_shoulder_left')
-    shoulderR = models.ForeignKey('ShoulderCondition', on_delete=models.CASCADE, related_name='road_condition_shoulder_right')
-    slopeL = models.ForeignKey('SlopeCondition', on_delete=models.CASCADE, related_name='road_condition_slope_left')
-    slopeR = models.ForeignKey('SlopeCondition', on_delete=models.CASCADE, related_name='road_condition_slope_right')
+    drainL = models.ForeignKey('DrainCondition', on_delete=models.CASCADE, null=True, blank=True, related_name='road_condition_left',db_column='drainL')
+    drainR = models.ForeignKey('DrainCondition', on_delete=models.CASCADE, null=True, blank=True, related_name='road_condition_right',db_column='drainR')
+    footpathL = models.ForeignKey('FootPathCondition', on_delete=models.CASCADE, related_name='road_condition_footpath_left',db_column='footpathL')
+    footpathR = models.ForeignKey('FootPathCondition', on_delete=models.CASCADE, related_name='road_condition_footpath_right',db_column='footpathR')
+    shoulderL = models.ForeignKey('ShoulderCondition', on_delete=models.CASCADE, related_name='road_condition_shoulder_left',db_column='shoulderL')
+    shoulderR = models.ForeignKey('ShoulderCondition', on_delete=models.CASCADE, related_name='road_condition_shoulder_right',db_column='shoulderR')
+    slopeL = models.ForeignKey('SlopeCondition', on_delete=models.CASCADE, related_name='road_condition_slope_left',db_column='slopeL')
+    slopeR = models.ForeignKey('SlopeCondition', on_delete=models.CASCADE, related_name='road_condition_slope_right',db_column='slopeR')
 
     gravelSize = models.CharField(max_length=50, null=True, blank=True)
     gravelThickness = models.CharField(max_length=50, null=True, blank=True)
@@ -74,7 +86,7 @@ class RoadCondition(models.Model):
     wavinessArea = models.FloatField(null=True, blank=True)
     year = models.IntegerField(null=False, blank=False)
 
-    linkId = models.ForeignKey('Link', on_delete=models.CASCADE, related_name='road_conditions')
+    linkId = models.ForeignKey('Link', on_delete=models.CASCADE, related_name='road_conditions',db_column='linkId')
 
     class Meta:
         db_table = 'RoadCondition'
