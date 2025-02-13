@@ -72,4 +72,4 @@ class RoadInventory(models.Model):
     )
 
     class Meta:
-        db_table = 'RoadInventory'  # Standardized table name
+        db_table = 'roadinventory'  # Standardized table name

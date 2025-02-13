@@ -89,4 +89,4 @@ class RoadCondition(models.Model):
     linkId = models.ForeignKey('Link', on_delete=models.CASCADE, related_name='road_conditions',db_column='linkId')
 
     class Meta:
-        db_table = 'RoadCondition'
+        db_table = 'roadcondition'
