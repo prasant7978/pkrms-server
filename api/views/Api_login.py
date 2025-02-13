@@ -40,7 +40,6 @@ def api_login(request):
         try:
             # Decrypt the password
             decrypted_password = decrypt_password(encrypted_password)
-            print('decry', decrypted_password)  # This will display the actual decrypted password
 
         except ValueError:
             return Response({'detail': 'Invalid password encryption.'}, status=status.HTTP_400_BAD_REQUEST)
