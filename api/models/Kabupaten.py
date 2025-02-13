@@ -12,7 +12,7 @@ class Kabupaten(models.Model):
     Province = models.ForeignKey(Province, on_delete=models.CASCADE, null=True,blank=True)
 
     class Meta:
-        db_table = 'Kabupaten'
+        db_table = 'kabupaten'
 
     def __str__(self):
         return self.KabupatenName

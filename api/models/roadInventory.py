@@ -28,48 +28,48 @@ class RoadInventory(models.Model):
     shoulderTypeL = models.ForeignKey(
         ShoulderType, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_left'
+        related_name='road_inventory_left', null=True , blank=True
     )
     shoulderTypeR = models.ForeignKey(
         ShoulderType, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_right'
+        related_name='road_inventory_right', null=True , blank=True
     )
 
     drainTypeL = models.ForeignKey(
         DrainType, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_left'
+        related_name='road_inventory_left', null=True , blank=True
     )
     drainTypeR = models.ForeignKey(
         DrainType, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_right'
+        related_name='road_inventory_right', null=True , blank=True
     )
 
     terrain = models.ForeignKey(
         Terrain, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory'
+        related_name='road_inventory', null=True , blank=True
     )
 
     landUseL = models.ForeignKey(
         LandUse, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_left'
+        related_name='road_inventory_left', null=True , blank=True
     )
     landUseR = models.ForeignKey(
         LandUse, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory_right'
+        related_name='road_inventory_right', null=True , blank=True
     )
 
     impassable = models.BooleanField()
     impassableReason = models.ForeignKey(
         Impassible, 
         on_delete=models.CASCADE, 
-        related_name='road_inventory'
+        related_name='road_inventory', null=True , blank=True
     )
 
     class Meta:
-        db_table = 'RoadInventory'  # Standardized table name
+        db_table = 'roadinventory'  # Standardized table name
