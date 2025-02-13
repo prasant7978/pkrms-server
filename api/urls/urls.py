@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path
+from api.views.roadConditionView import roadConditionView
 from api.views.Api_login import api_login
 from api.views.linkViews import LinkViewSet
 from api.views.pfid_dashboard import pfid_dashboard,superadmin_dashboard, DPSI_dashboard, SPDJD_dashboard
@@ -37,5 +38,5 @@ urlpatterns = [
     path('superadmin',superadmin_dashboard, name='superadmin_dashboard'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('road_inventory',roadInventory, name='road_inventory_list_create'),
-    
+    path('roadCondition',roadConditionView, name='roadCondition_list_create'),
 ]

@@ -30,16 +30,16 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    contact_person = models.CharField(null=True, blank=True)
+    
     username = models.CharField(max_length=30, unique=True)  # Added unique=True to username
-    phoneNumber = models.CharField(
+    phone_number = models.CharField(
         max_length=15,null=True, blank=True,
         validators=[RegexValidator(
             regex=r'^\+62\d{9,13}$',
             message="Phone number must be in Indonesian format, starting with +62 followed by 9 to 13 digits."
         )]
     )
-    name = models.CharField(max_length=100, blank=True, null=True, verbose_name="Full Name")
+    
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # Default is False for regular users
     date_joined = models.DateTimeField(default=timezone.now)

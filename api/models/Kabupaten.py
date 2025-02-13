@@ -4,7 +4,7 @@ from api.models.Province import Province
 
 
 class Kabupaten(models.Model):
-    KabupatenCode = models.CharField(max_length=5, primary_key=True, null=False)
+    KabupatenCode = models.CharField(max_length=5, null=True, blank=True, default=None)
     KabupatenName = models.CharField(max_length=255, null=False)
     IslandCode = models.CharField(max_length=5, blank=True)
     DefaultKabupaten = models.BooleanField(default=False)
