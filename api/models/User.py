@@ -68,3 +68,10 @@ class ApprovalRequest(models.Model):
         choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')],
         default='Pending'
     )
+    
+    
+    
+    
+    
+    
+    

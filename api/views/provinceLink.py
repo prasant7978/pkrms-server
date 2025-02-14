@@ -31,16 +31,18 @@ def provinceLinks(request, link_id=None):
     logged_in_user = request.user
 
     # Ensure the user has the required role
-    if logged_in_user.role.role_name != Role.PROVINCIAL_LG:
-        return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
+    # if logged_in_user.role.role_name != Role.PROVINCIAL_LG:
+    #     return Response({"detail": "Unauthorized access."}, status=status.HTTP_403_FORBIDDEN)
 
     if request.method == 'GET':
         # Retrieve all links for the logged-in user's province
         # Fetch all roles with their IDs
         roles = Role.objects.all().values('id', 'role_name')
-        print(roles)
-        province_links = Link.objects.filter(province=logged_in_user.province)
+        # print(roles)
+       
+        province_links = Link.objects.filter(province=logged_in_user.province,kabupaten=logged_in_user.Kabupaten.KabupatenCode)
         logged_in_user_serializer = UserSerializer(logged_in_user)
+        print(logged_in_user_serializer.data)
         return Response({'province_links': list(province_links.values()), 'logged_in_user': logged_in_user_serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':

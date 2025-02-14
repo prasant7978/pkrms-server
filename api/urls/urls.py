@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path
+from api.views.roadConditionView import roadConditionView
 from api.views.Api_login import api_login
+from api.views.linkViews import LinkViewSet
 from api.views.pfid_dashboard import pfid_dashboard,superadmin_dashboard, DPSI_dashboard, SPDJD_dashboard
 from api.views.change_password import change_password
 from api.views.balai_dashboard import balai_dashboard
@@ -11,12 +13,15 @@ from django.urls import path, include
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenRefreshView
 from api.views.roadInventory import roadInventory
+from rest_framework import routers
 
+router = routers.DefaultRouter()
+router.register(r'link', LinkViewSet)
 
 urlpatterns = [
    
     #user login api's url 
-    
+    path('', include(router.urls)),
     path('login',api_login, name='api-login'),
     path('change-password',change_password, name='change-password'),
     path('login',api_login, name='api-login'),
@@ -33,5 +38,5 @@ urlpatterns = [
     path('superadmin',superadmin_dashboard, name='superadmin_dashboard'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('road_inventory',roadInventory, name='road_inventory_list_create'),
-    
+    path('roadCondition',roadConditionView, name='roadCondition_list_create'),
 ]
