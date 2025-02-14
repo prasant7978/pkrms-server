@@ -161,10 +161,9 @@ def pfid_dashboard(request):
             phone_number = request.data.get('phone_number')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
-            kabupaten_id = request.data.get('kabupaten')
-
+            
             # Validate required fields
-            if not all([username, email, password, balai_id,phone_number, province_id, kabupaten_id]):
+            if not all([username, email, password, balai_id,phone_number, province_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
 
             # Check if user already exists
@@ -174,7 +173,6 @@ def pfid_dashboard(request):
             # Fetch province, kabupaten, and balai objects
             balai = get_object_or_404(Balai, id=balai_id)
             province = get_object_or_404(Province, provinceCode=province_id)
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
 
             # Create new user
             balai_user = User.objects.create(
@@ -185,7 +183,6 @@ def pfid_dashboard(request):
                 role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
-                Kabupaten=kabupaten,
                 approved=False  # Requires PFID approval
             )
 
@@ -230,7 +227,6 @@ def pfid_dashboard(request):
             balai = get_object_or_404(Balai, id=balai_id)
             user.balai = balai
         user.province = get_object_or_404(Province, provinceCode=request.data.get('province', user.province.provinceCode))
-        user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten', user.Kabupaten.KabupatenCode))
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -255,8 +251,6 @@ def pfid_dashboard(request):
             user.balai = balai
         if 'province' in request.data:
             user.province = get_object_or_404(Province, provinceCode=request.data['province'])
-        if 'Kabupaten' in request.data:
-            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data['Kabupaten'])
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -323,10 +317,9 @@ def DPSI_dashboard(request):
             password = request.data.get('password')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
-            kabupaten_id = request.data.get('kabupaten')
 
             # Validate required fields
-            if not all([username, email, password, balai_id, province_id, kabupaten_id]):
+            if not all([username, email, password, balai_id, province_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
 
             # Check if user already exists
@@ -336,7 +329,6 @@ def DPSI_dashboard(request):
             # Fetch province, kabupaten, and balai objects
             balai = get_object_or_404(Balai, id=balai_id)
             province = get_object_or_404(Province, provinceCode=province_id)
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
 
             # Create new user
             balai_user = User.objects.create(
@@ -346,7 +338,6 @@ def DPSI_dashboard(request):
                 role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
-                Kabupaten=kabupaten,
                 approved=False  # Requires PFID approval
             )
 
@@ -391,7 +382,6 @@ def DPSI_dashboard(request):
             balai = get_object_or_404(Balai, id=balai_id)
             user.balai = balai
         user.province = get_object_or_404(Province, provinceCode=request.data.get('province', user.province.provinceCode))
-        user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten', user.Kabupaten.KabupatenCode))
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -413,8 +403,6 @@ def DPSI_dashboard(request):
             user.balai = balai
         if 'province' in request.data:
             user.province = get_object_or_404(Province, provinceCode=request.data['province'])
-        if 'Kabupaten' in request.data:
-            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data['Kabupaten'])
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -478,10 +466,9 @@ def SPDJD_dashboard(request):
             password = request.data.get('password')
             balai_id = request.data.get('balai')
             province_id = request.data.get('province')
-            kabupaten_id = request.data.get('kabupaten')
 
             # Validate required fields
-            if not all([username, email, password, balai_id, province_id, kabupaten_id]):
+            if not all([username, email, password, balai_id, province_id]):
                 return Response({'detail': 'All fields are required'}, status=400)
 
             # Check if user already exists
@@ -491,7 +478,6 @@ def SPDJD_dashboard(request):
             # Fetch province, kabupaten, and balai objects
             balai = get_object_or_404(Balai, id=balai_id)
             province = get_object_or_404(Province, provinceCode=province_id)
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
 
             # Create new user
             balai_user = User.objects.create(
@@ -501,7 +487,6 @@ def SPDJD_dashboard(request):
                 role=Role.objects.get(role_name=Role.BALAI),
                 balai=balai,
                 province=province,
-                Kabupaten=kabupaten,
                 approved=False  # Requires PFID approval
             )
 
@@ -546,7 +531,6 @@ def SPDJD_dashboard(request):
             balai = get_object_or_404(Balai, id=balai_id)
             user.balai = balai
         user.province = get_object_or_404(Province, provinceCode=request.data.get('province', user.province.provinceCode))
-        user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten', user.Kabupaten.KabupatenCode))
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)
@@ -568,8 +552,6 @@ def SPDJD_dashboard(request):
             user.balai = balai
         if 'province' in request.data:
             user.province = get_object_or_404(Province, provinceCode=request.data['province'])
-        if 'Kabupaten' in request.data:
-            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data['Kabupaten'])
 
         user.save()
         return Response({'detail': 'User updated successfully.'}, status=200)

@@ -3,4 +3,5 @@ djangorestframework
 djangorestframework-simplejwt
 python-decouple
 psycopg2-binary
-corsheaders
+django-cors-headers
+pycryptodome

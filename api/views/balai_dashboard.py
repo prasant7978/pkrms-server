@@ -96,7 +96,7 @@ def balai_dashboard(request):
 
             balai = get_object_or_404(Balai, id=balai_id)
             province = get_object_or_404(Province, provinceCode=province_id)
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=kabupaten_id)
+            kabupaten = get_object_or_404(Kabupaten, id=kabupaten_id)
             role = get_object_or_404(Role, role_name=role_name)  # Fetch role by name
 
             # Create new user
@@ -148,7 +148,7 @@ def balai_dashboard(request):
             balai = get_object_or_404(Balai, id=request.data.get('balai'))
             user.balai = balai
         if 'Kabupaten' in request.data:
-            kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten'))
+            kabupaten = get_object_or_404(Kabupaten, id=request.data.get('Kabupaten'))
             user.Kabupaten = kabupaten
 
         user.save()
@@ -168,7 +168,7 @@ def balai_dashboard(request):
         if 'balai' in request.data:
             user.balai = get_object_or_404(Balai, id=request.data.get('balai'))
         if 'Kabupaten' in request.data:
-            user.Kabupaten = get_object_or_404(Kabupaten, KabupatenCode=request.data.get('Kabupaten'))
+            user.Kabupaten = get_object_or_404(Kabupaten, id=request.data.get('Kabupaten'))
 
         user.save()
         return Response({'detail': 'User partially updated successfully.'}, status=200)

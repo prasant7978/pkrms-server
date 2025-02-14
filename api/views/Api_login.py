@@ -44,23 +44,22 @@ def api_login(request):
         # Check if email exists in the database
         '''User = get_user_model()
         if not User.objects.filter(email=email).exists():
-            return Response({'success': False, 'detail': 'Email does not exist.'}, status=status.HTTP_400_BAD_REQUEST)'''
+            return Response({'success': False, 'message': 'Email does not exist.'}, status=status.HTTP_400_BAD_REQUEST)'''
 
-        try:
-            # Decrypt the password
-            decrypted_password = decrypt_password(password)
-            print('decry', decrypted_password)  # This will display the actual decrypted password
+        # try:
+        #     # Decrypt the password
+        #     decrypted_password = decrypt_password(password)
 
-        except ValueError:
-            return Response({'detail': 'Invalid password encryption.'}, status=status.HTTP_400_BAD_REQUEST)
-
+        # except ValueError:
+        #     return Response({'message': 'Invalid password encryption.'}, status=status.HTTP_400_BAD_REQUEST)
+        print(email, password)
         # Authenticate user with decrypted password
-        user = authenticate(request, email=email, password=decrypted_password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             # Check if user is active
             if not user.is_active:
-                return Response({'success': False, 'detail': 'Your account is not active.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False, 'message': 'Your account is not active.'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Specific checks for user roles regarding approval
             role_approval_messages = {
@@ -71,11 +70,11 @@ def api_login(request):
             }
 
             if user.role.role_name in role_approval_messages and not user.approved:
-                return Response({'success': False, 'detail': role_approval_messages[user.role.role_name]}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False, 'message': role_approval_messages[user.role.role_name]}, status=status.HTTP_400_BAD_REQUEST)
 
             # General approval check
             if not user.approved and not user.is_superuser:
-                return Response({'success': False, 'detail': 'Your account is not approved yet. Please wait for approval.'}, 
+                return Response({'success': False, 'message': 'Your account is not approved yet. Please wait for approval.'}, 
                                 status=status.HTTP_400_BAD_REQUEST)
 
             # Generate JWT token for authenticated users
@@ -122,6 +121,6 @@ def api_login(request):
 
             return Response(response_data, status=status.HTTP_200_OK)
 
-        return Response({'success': False, 'detail': 'Invalid email or password.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'success': False, 'message': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
