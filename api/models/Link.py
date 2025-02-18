@@ -22,9 +22,7 @@ class Link(models.Model):
     # status = models.ForeignKey(LinkStatus,on_delete=models.CASCADE, null=True, blank=True)  # link status
     # function = models.ForeignKey(LinkFunction,on_delete=models.CASCADE, null=True, blank=True)  # link function
     # class_field = models.ForeignKey(LinkClass,on_delete=models.CASCADE, db_column='class',null=True, blank=True)  # Link class
-    status = models.CharField(unique=True, null= False)
-    function = models.CharField(unique=True, null= False)
-    class_field = models.CharField(unique=True, null= False)
+    
     wti = models.IntegerField(null=True, blank=True)
     mca2 = models.IntegerField(null=True, blank=True)
     mca3 = models.IntegerField(null=True, blank=True)

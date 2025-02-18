@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["http://192.168.0.213:5173"]
+CORS_ALLOW_ALL_ORIGINS = True 
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -168,3 +170,5 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # default backend
     'api.backends.EmailAuthBackend',  # your custom backend
 )
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.213']
