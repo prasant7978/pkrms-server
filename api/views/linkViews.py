@@ -9,7 +9,7 @@ from api.serializers.LinkSerializer import LinkSerializer
 class LinkViewSet(viewsets.ModelViewSet):
     queryset = Link.objects.all()
     serializer_class = LinkSerializer
-    
+
     @action(methods=['get'], detail=False)
     def getLinkByProvinceAndKabupaten(self, request, *args, **kwargs):
         # print('request.........', request)
@@ -24,4 +24,3 @@ class LinkViewSet(viewsets.ModelViewSet):
         serialized_data = self.serializer_class(links, many=True)
         
         return Response({'province_links': serialized_data.data}, status=status.HTTP_200_OK)
-        

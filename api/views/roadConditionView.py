@@ -18,8 +18,7 @@ def roadConditionView(request):
     
     logged_in_user = request.user
     
-    link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
-    print(link_id)
+    link_id = f"{request.data.get('province_id') or request.GET.get('province_id')}-{request.data.get('kabupaten_id') or request.GET.get('kabupaten_id')}-{request.data.get('linkId') or request.GET.get('linkId')}"
     year = request.data.get('year') or request.GET.get('year')
     if not link_id:
         return Response({'detail': 'Link ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
