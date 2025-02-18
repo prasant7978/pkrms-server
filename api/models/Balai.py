@@ -9,7 +9,7 @@ class Balai(models.Model):
     # Using string reference to avoid circular import issues
     provinceCode = models.ForeignKey(Province, on_delete=models.CASCADE, verbose_name="Province code")
     
-    balaiName = models.CharField(max_length=30, null=False)
+    balaiName = models.CharField(max_length=250, null=False)
     contactPerson = models.CharField(max_length=20)
 
     class Meta:

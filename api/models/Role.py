@@ -6,7 +6,7 @@ class Role(models.Model):
     DPSI = 'dpsi'
     SPDJD = "spdjd"
     BALAI = 'balai'
-    PROVINCIAL_LG = 'provience_lg'
+    PROVINCIAL_LG = 'province_lg'
     KABUPATEN_LG = 'kabupaten_lg'
 
     ROLE_CHOICES = [
