@@ -26,10 +26,15 @@ def roadInventory(request):
 
     # Fetch `linkId` from request data or query parameters
     # print(logged_in_user.province.provinceCode)
-    # print(logged_in_user.Kabupaten.KabupatenCode)
-    print("link: ", request)
-    link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
-    print(link_id)
+    # print("user: ", logged_in_user.role.role_name)
+    # print("province code: ", logged_in_user.province.provinceCode)
+    link_id = ""
+    if logged_in_user.role.role_name == "province_lg" or logged_in_user.role.role_name == "kabupaten_lg":
+        link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
+    else:
+        link_id = f"{request.data.get('province_id') or request.GET.get('province_id')}-{request.data.get('kabupaten_id') or request.GET.get('kabupaten_id')}-{request.data.get('linkId') or request.GET.get('linkId')}"
+
+    # print("link id: ", link_id)
     
     # formatted_link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
     # print(formatted_link_id)

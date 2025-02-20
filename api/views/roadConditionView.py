@@ -17,9 +17,12 @@ from api.models.Role import Role
 def roadConditionView(request):
     
     logged_in_user = request.user
-    
-    link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
-    print(link_id)
+    link_id = ""
+    if logged_in_user.role.role_name == "province_lg" or logged_in_user.role.role_name == "kabupaten_lg":
+        link_id = f"{logged_in_user.province.provinceCode}-{logged_in_user.Kabupaten.KabupatenCode}-{request.data.get('linkId') or request.GET.get('linkId')}"
+    else:
+        link_id = f"{request.data.get('province_id') or request.GET.get('province_id')}-{request.data.get('kabupaten_id') or request.GET.get('kabupaten_id')}-{request.data.get('linkId') or request.GET.get('linkId')}"
+    # print("link id: ", link_id)
     year = request.data.get('year') or request.GET.get('year')
     if not link_id:
         return Response({'detail': 'Link ID is required.'}, status=status.HTTP_400_BAD_REQUEST)

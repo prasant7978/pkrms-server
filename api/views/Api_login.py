@@ -114,9 +114,10 @@ def api_login(request):
 
             elif user.role.role_name == Role.KABUPATEN_LG:
                 response_data["user"].update({
-                   "balainame": user.balai.balaiName if user.balai else None,  # Corrected field
-                   "approved": user.approved,
-                   "kabupaten_name": user.Kabupaten.KabupatenName  if user.Kabupaten else None
+                    "balainame": user.balai.balaiName if user.balai else None,  # Corrected field
+                    "provincename": user.province.provinceName if user.province else None,
+                    "approved": user.approved,
+                    "kabupaten_name": user.Kabupaten.KabupatenName  if user.Kabupaten else None
                 })
 
             return Response(response_data, status=status.HTTP_200_OK)
