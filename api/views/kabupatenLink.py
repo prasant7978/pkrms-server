@@ -29,20 +29,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from api.models.Role import Role
 from api.models.Link import Link
-from api.models.Province import Province
-from api.models.Kabupaten import Kabupaten
-from api.models.User import User,ApprovalRequest
-from api.models.Balai import Balai
 
 #seializers
 from api.serializers.LinkSerializer import LinkSerializer
-
-
-
-
-
-
-
 
 @api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
