@@ -5,3 +5,4 @@ python-decouple
 psycopg2-binary
 django-cors-headers
 pycryptodome
+gunicorn
